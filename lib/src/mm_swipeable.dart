@@ -54,8 +54,14 @@ class _MmSwipeableState extends State<MmSwipeable> {
             _xPosition = width * 2;
             _yPosition = 0;
           });
-          Future.delayed(const Duration(milliseconds: 250), () {
+          Future.delayed(const Duration(milliseconds: 100), () {
             widget.onDismissed(DismissDirection.endToStart);
+            setState(() {
+              animationDuration = Duration.zero;
+              _rotate = 0;
+              _xPosition = 0;
+              _yPosition = 0;
+            });
           });
         } else if (swipeLeft) {
           setState(() {
@@ -64,8 +70,14 @@ class _MmSwipeableState extends State<MmSwipeable> {
             _xPosition = -(width * 2);
             _yPosition = 0;
           });
-          Future.delayed(const Duration(milliseconds: 250), () {
+          Future.delayed(const Duration(milliseconds: 100), () {
             widget.onDismissed(DismissDirection.startToEnd);
+            setState(() {
+              animationDuration = Duration.zero;
+              _rotate = 0;
+              _xPosition = 0;
+              _yPosition = 0;
+            });
           });
         } else {
           setState(() {
