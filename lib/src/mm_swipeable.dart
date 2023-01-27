@@ -58,18 +58,18 @@ class _MmSwipeableWidgetState extends State<MmSwipeableWidget> {
             final swipeLeft = angleReturn && _xPosition < 0;
             if (swipeRight) {
               setState(() {
-                animationDuration = const Duration(seconds: 2);
-                _rotate = width / 500;
-                _xPosition = width * 2;
+                animationDuration = Duration.zero;
+                _rotate = 0;
+                _xPosition = 0;
                 _yPosition = 0;
                 isDismissed = true;
               });
               widget.onDismissed(DismissDirection.endToStart);
             } else if (swipeLeft) {
               setState(() {
-                animationDuration = const Duration(seconds: 2);
-                _rotate = -(width / 500);
-                _xPosition = -width * 2;
+                animationDuration = Duration.zero;
+                _rotate = 0;
+                _xPosition = 0;
                 _yPosition = 0;
                 isDismissed = true;
               });
