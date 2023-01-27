@@ -93,9 +93,9 @@ class _MatchCardState extends State<MatchCard> {
           leftTextOpacity = clampDouble(-angle, 0, 1);
           rightTextOpacity = clampDouble(angle, 0, 1);
         });
-        if (angle > 0.6) {
+        if (angle > 0.7) {
           return true;
-        } else if (angle < -0.6) {
+        } else if (angle < -0.7) {
           return true;
         }
         return false;
