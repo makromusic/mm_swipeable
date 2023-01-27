@@ -87,7 +87,7 @@ class _MatchCardState extends State<MatchCard> {
 
   @override
   Widget build(BuildContext context) {
-    return MmSwipeableWidget(
+    return MmSwipeable(
       confirmDismiss: (angle) {
         setState(() {
           leftTextOpacity = clampDouble(-angle, 0, 1);

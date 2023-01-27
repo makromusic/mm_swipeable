@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class MmSwipeableWidget extends StatefulWidget {
+class MmSwipeable extends StatefulWidget {
   final bool Function(double) confirmDismiss;
   final Function(DismissDirection) onDismissed;
   final Widget child;
-  const MmSwipeableWidget({
+  const MmSwipeable({
     required this.confirmDismiss,
     required this.child,
     required this.onDismissed,
@@ -15,10 +15,10 @@ class MmSwipeableWidget extends StatefulWidget {
   });
 
   @override
-  State<MmSwipeableWidget> createState() => _MmSwipeableWidgetState();
+  State<MmSwipeable> createState() => _MmSwipeableState();
 }
 
-class _MmSwipeableWidgetState extends State<MmSwipeableWidget> {
+class _MmSwipeableState extends State<MmSwipeable> {
   double _rotate = 0;
   double _xPosition = 0;
   double _yPosition = 0;
