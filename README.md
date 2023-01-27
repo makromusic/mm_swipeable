@@ -1,4 +1,4 @@
-# mm_dismissible_widget
+# mm_swipeable
 
 A new Flutter project.
 
