@@ -39,8 +39,8 @@ class _MmSwipeableState extends State<MmSwipeable> {
         });
       },
       onPanEnd: (details) {
-        final isFast = (details.velocity.pixelsPerSecond.dx / width) > 11 ||
-            (details.velocity.pixelsPerSecond.dx / width) < -11;
+        final isFast = (details.velocity.pixelsPerSecond.dx / width) > 8 ||
+            (details.velocity.pixelsPerSecond.dx / width) < -8;
         final angleReturn =
             widget.confirmDismiss(clampDouble((_rotate * 90) / 10, -1, 1));
         final swipeRight =
