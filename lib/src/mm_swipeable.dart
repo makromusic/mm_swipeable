@@ -7,9 +7,6 @@ class MmSwipeableController {
   _MmSwipeableState? _swipeableState;
 
   void _bind(_MmSwipeableState state) {
-    if (kDebugMode) {
-      print("binding state:${state.hashCode} to controller:$hashCode");
-    }
     _swipeableState = state;
   }
 
@@ -18,11 +15,6 @@ class MmSwipeableController {
   }
 
   void _dispose() {
-    if (kDebugMode) {
-      print(
-        "disposing state:${_swipeableState.hashCode} from controller:$hashCode",
-      );
-    }
     _swipeableState = null;
   }
 
