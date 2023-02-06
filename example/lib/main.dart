@@ -145,14 +145,14 @@ class _MatchCardState extends State<MatchCard> {
   Widget build(BuildContext context) {
     return MmSwipeable(
       controller: widget.controller,
-      confirmDismiss: (angle) {
+      confirmDismiss: (angle, velocity) {
         setState(() {
           leftTextOpacity = clampDouble(-angle, 0, 1);
           rightTextOpacity = clampDouble(angle, 0, 1);
         });
-        if (angle > 0.7) {
+        if (angle > 0.7 || velocity > 0.7) {
           return true;
-        } else if (angle < -0.7) {
+        } else if (angle < -0.7 || velocity < -0.7) {
           return true;
         }
         return false;

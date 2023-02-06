@@ -36,7 +36,7 @@ class MmSwipeableController {
 }
 
 class MmSwipeable extends StatefulWidget {
-  final bool Function(double) confirmDismiss;
+  final bool Function(double angle, double velocity) confirmDismiss;
   final Function(DismissDirection) onDismissed;
   final MmSwipeableController? controller;
 
@@ -122,7 +122,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
     return GestureDetector(
       onPanUpdate: (details) {
-        widget.confirmDismiss(clampDouble((_rotate * 90) / 10, -1, 1));
+        widget.confirmDismiss(clampDouble((_rotate * 90) / 10, -1, 1), 0);
         setState(() {
           animationDuration = Duration.zero;
           _rotate = _xPosition / (width! * (pi * 1.5));
@@ -131,17 +131,15 @@ class _MmSwipeableState extends State<MmSwipeable> {
         });
       },
       onPanEnd: (details) {
-        const speedTreshold = 4;
-
-        final isFast =
-            (details.velocity.pixelsPerSecond.dx / width!) > speedTreshold ||
-                (details.velocity.pixelsPerSecond.dx / width!) < -speedTreshold;
-        final angleReturn =
-            widget.confirmDismiss(clampDouble((_rotate * 90) / 10, -1, 1));
-        final swipeRight =
-            (angleReturn && _xPosition > 0) || (isFast && _xPosition > 0);
-        final swipeLeft =
-            (angleReturn && _xPosition < 0) || (isFast && _xPosition < 0);
+        const speedTreshold = 8;
+        final velocity = clampDouble(
+            (details.velocity.pixelsPerSecond.dx / width!) / speedTreshold,
+            -1,
+            1);
+        final angleReturn = widget.confirmDismiss(
+            clampDouble((_rotate * 90) / 10, -1, 1), velocity);
+        final swipeRight = (angleReturn && _xPosition > 0);
+        final swipeLeft = (angleReturn && _xPosition < 0);
         if (swipeRight) {
           this.swipeRight();
         } else if (swipeLeft) {
@@ -154,7 +152,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
             _yPosition = 0;
           });
         }
-        widget.confirmDismiss(0);
+        widget.confirmDismiss(0, 0);
       },
       child: Stack(
         alignment: Alignment.center,
