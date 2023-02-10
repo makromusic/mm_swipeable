@@ -88,7 +88,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
       _yPosition = 0;
     });
     Future.delayed(_dismissOffset, () {
-      widget.onDismissed(DismissDirection.endToStart);
+      widget.onDismissed(DismissDirection.startToEnd);
       setState(() {
         animationDuration = Duration.zero;
         _rotate = 0;
@@ -106,7 +106,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
       _yPosition = 0;
     });
     Future.delayed(_dismissOffset, () {
-      widget.onDismissed(DismissDirection.startToEnd);
+      widget.onDismissed(DismissDirection.endToStart);
       setState(() {
         animationDuration = Duration.zero;
         _rotate = 0;
