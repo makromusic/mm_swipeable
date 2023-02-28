@@ -61,7 +61,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
   double _yPosition = 0;
   double? width;
 
-  static const Duration _swipeDuration = Duration(seconds: 5);
+  static const Duration _swipeDuration = Duration(milliseconds: 2000);
   static const Duration _dismissOffset = Duration(milliseconds: 500);
 
   Duration animationDuration = Duration.zero;
@@ -95,6 +95,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
         _xPosition = 0;
         _yPosition = 0;
       });
+      widget.confirmDismiss(0, 0);
     });
   }
 
@@ -113,6 +114,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
         _xPosition = 0;
         _yPosition = 0;
       });
+      widget.confirmDismiss(0, 0);
     });
   }
 
@@ -151,8 +153,8 @@ class _MmSwipeableState extends State<MmSwipeable> {
             _xPosition = 0;
             _yPosition = 0;
           });
+          widget.confirmDismiss(0, 0);
         }
-        widget.confirmDismiss(0, 0);
       },
       child: Stack(
         alignment: Alignment.center,
