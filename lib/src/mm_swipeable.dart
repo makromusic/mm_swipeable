@@ -64,7 +64,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
   double? width;
 
   static const Duration _swipeDuration = Duration(milliseconds: 2000);
-  static const Duration _dismissOffset = Duration(milliseconds: 500);
+  static const Duration _dismissOffset = Duration(milliseconds: 200);
 
   Duration animationDuration = Duration.zero;
 
@@ -91,14 +91,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
     });
     Future.delayed(_dismissOffset, () {
       widget.onDismissed(DismissDirection.startToEnd);
-      if (mounted) {
-        setState(() {
-          animationDuration = Duration.zero;
-          _rotate = 0;
-          _xPosition = 0;
-          _yPosition = 0;
-        });
-      }
       widget.confirmDismiss(0, 0);
     });
   }
@@ -112,14 +104,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
     });
     Future.delayed(_dismissOffset, () {
       widget.onDismissed(DismissDirection.endToStart);
-      if (mounted) {
-        setState(() {
-          animationDuration = Duration.zero;
-          _rotate = 0;
-          _xPosition = 0;
-          _yPosition = 0;
-        });
-      }
       widget.confirmDismiss(0, 0);
     });
   }
