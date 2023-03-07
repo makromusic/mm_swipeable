@@ -46,7 +46,7 @@ class MmSwipeable extends StatefulWidget {
     required this.confirmDismiss,
     required this.child,
     required this.onDismissed,
-     this.onDismissCancelled,
+    this.onDismissCancelled,
     this.controller,
     super.key,
   });
@@ -91,12 +91,14 @@ class _MmSwipeableState extends State<MmSwipeable> {
     });
     Future.delayed(_dismissOffset, () {
       widget.onDismissed(DismissDirection.startToEnd);
-      setState(() {
-        animationDuration = Duration.zero;
-        _rotate = 0;
-        _xPosition = 0;
-        _yPosition = 0;
-      });
+      if (mounted) {
+        setState(() {
+          animationDuration = Duration.zero;
+          _rotate = 0;
+          _xPosition = 0;
+          _yPosition = 0;
+        });
+      }
       widget.confirmDismiss(0, 0);
     });
   }
@@ -110,12 +112,14 @@ class _MmSwipeableState extends State<MmSwipeable> {
     });
     Future.delayed(_dismissOffset, () {
       widget.onDismissed(DismissDirection.endToStart);
-      setState(() {
-        animationDuration = Duration.zero;
-        _rotate = 0;
-        _xPosition = 0;
-        _yPosition = 0;
-      });
+      if (mounted) {
+        setState(() {
+          animationDuration = Duration.zero;
+          _rotate = 0;
+          _xPosition = 0;
+          _yPosition = 0;
+        });
+      }
       widget.confirmDismiss(0, 0);
     });
   }
