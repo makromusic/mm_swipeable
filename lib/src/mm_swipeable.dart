@@ -38,7 +38,7 @@ class MmSwipeableController {
 class MmSwipeable extends StatefulWidget {
   final bool Function(double angle, double velocity) confirmDismiss;
   final Function(DismissDirection) onDismissed;
-  final Function(DismissDirection)? onDismissCancelled;
+  final Function()? onDismissCancelled;
   final MmSwipeableController? controller;
 
   final Widget child;
@@ -144,12 +144,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
             _yPosition = 0;
           });
           widget.confirmDismiss(0, 0);
-          final cancelDirection = _xPosition > 0
-              ? DismissDirection.startToEnd
-              : DismissDirection.endToStart;
-          widget.onDismissCancelled?.call(
-            cancelDirection,
-          );
         }
       },
       child: Stack(
