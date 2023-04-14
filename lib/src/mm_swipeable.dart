@@ -144,6 +144,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
             _yPosition = 0;
           });
           widget.confirmDismiss(0, 0);
+          widget.onDismissCancelled?.call();
         }
       },
       child: Stack(
