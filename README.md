@@ -1,17 +1,40 @@
-# mm_swipeable
+# MmSwipeable
 
-A new Flutter project.
+MmSwipeable is a Flutter widget that allows swipe gestures on a child widget, providing dismissible behavior.
+
+## Features
+
+- Supports swipe gestures for dismissing a widget.
+- Configurable swipe directions and dismissal actions.
+- Provides a customizable UI for smooth and animated swipe transitions.
+
+## Usage
+
+To use MmSwipeable, wrap the desired child widget with it:
+
+```dart
+MmSwipeable(
+  confirmDismiss: (angle, velocity) {
+    // Implement your custom logic to confirm the dismiss action
+    // Return true to confirm dismiss, false otherwise
+  },
+  onDismissed: (direction) {
+    // Handle the dismiss action based on the given direction
+  },
+  onDismissCancelled: () {
+    // Optional: Handle the case when the dismiss action is cancelled
+  },
+  child: YourChildWidget(),
+);
+```
+In the `confirmDismiss` callback, you can implement your custom logic to determine whether the dismiss action should be confirmed. Return `true` to confirm the dismiss, or `false` to cancel it.
+
+The `onDismissed` callback is triggered when the dismiss action is confirmed. You can handle the dismiss action based on the provided direction parameter, which indicates the swipe direction (e.g., `DismissDirection.startToEnd`, `DismissDirection.endToStart`).
+
+Optionally, you can provide an `onDismissCancelled` callback to handle the case when the dismiss action is cancelled. This can happen when the swipe gesture is not strong enough or when the user cancels the swipe before reaching the threshold.
 
 ## Getting Started
+To use this package, add mm_swipeable as a dependency in your pubspec.yaml file.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# mm_swipeable
+## License
+This package is released under the MIT License. See the LICENSE file for more details.
