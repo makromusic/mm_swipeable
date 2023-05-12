@@ -35,6 +35,3 @@ Optionally, you can provide an `onDismissCancelled` callback to handle the case 
 
 ## Getting Started
 To use this package, add mm_swipeable as a dependency in your pubspec.yaml file.
-
-## License
-This package is released under the MIT License. See the LICENSE file for more details.
