@@ -111,6 +111,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
+    final childWidget = widget.child;
 
     return GestureDetector(
       onPanUpdate: (details) {
@@ -162,7 +163,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
               ..translate(_xPosition, _yPosition)
               ..rotateZ(_rotate),
             transformAlignment: Alignment.center,
-            child: widget.child,
+            child: childWidget,
           ),
         ],
       ),
