@@ -138,16 +138,16 @@ class _MmSwipeableState extends State<MmSwipeable> {
         } else if (swipeLeft) {
           this.swipeLeft();
         } else {
+          final cancelDirection = _xPosition > 0
+              ? DismissDirection.startToEnd
+              : DismissDirection.endToStart;
+          widget.confirmDismiss(0, 0);
           setState(() {
             animationDuration = const Duration(seconds: 1);
             _rotate = 0;
             _xPosition = 0;
             _yPosition = 0;
           });
-          widget.confirmDismiss(0, 0);
-          final cancelDirection = _xPosition > 0
-              ? DismissDirection.startToEnd
-              : DismissDirection.endToStart;
           widget.onDismissCancelled?.call(
             cancelDirection,
           );
