@@ -90,8 +90,18 @@ class _MmSwipeableState extends State<MmSwipeable> {
       _yPosition = 0;
     });
     Future.delayed(_dismissOffset, () {
-      widget.onDismissed(DismissDirection.startToEnd);
-      widget.confirmDismiss(0, 0);
+      final dismiss = widget.confirmDismiss(1, 0);
+      if (dismiss) {
+        widget.onDismissed(DismissDirection.startToEnd);
+      } else {
+        setState(() {
+          animationDuration = const Duration(seconds: 1);
+          _rotate = 0;
+          _xPosition = 0;
+          _yPosition = 0;
+        });
+        widget.onDismissCancelled?.call(DismissDirection.startToEnd);
+      }
     });
   }
 
@@ -103,8 +113,18 @@ class _MmSwipeableState extends State<MmSwipeable> {
       _yPosition = 0;
     });
     Future.delayed(_dismissOffset, () {
-      widget.onDismissed(DismissDirection.endToStart);
-      widget.confirmDismiss(0, 0);
+      final dismiss = widget.confirmDismiss(-1, 0);
+      if (dismiss) {
+        widget.onDismissed(DismissDirection.endToStart);
+      } else {
+        setState(() {
+          animationDuration = const Duration(seconds: 1);
+          _rotate = 0;
+          _xPosition = 0;
+          _yPosition = 0;
+        });
+        widget.onDismissCancelled?.call(DismissDirection.endToStart);
+      }
     });
   }
 
