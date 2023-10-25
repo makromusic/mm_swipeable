@@ -75,13 +75,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    widget.controller?._dispose();
-
-    super.dispose();
-  }
-
   void swipeRight() {
     setState(() {
       animationDuration = _swipeDuration;
@@ -93,6 +86,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
       final dismiss = widget.confirmDismiss(1, 0);
       if (dismiss) {
         widget.onDismissed(DismissDirection.startToEnd);
+        widget.controller?._dispose();
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
@@ -116,6 +110,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
       final dismiss = widget.confirmDismiss(-1, 0);
       if (dismiss) {
         widget.onDismissed(DismissDirection.endToStart);
+        widget.controller?._dispose();
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
