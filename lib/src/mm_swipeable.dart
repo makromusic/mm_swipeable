@@ -14,7 +14,7 @@ class MmSwipeableController {
     return _swipeableState?.width != null;
   }
 
-  void _dispose() {
+  void dispose() {
     _swipeableState = null;
   }
 
@@ -86,7 +86,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
       final dismiss = widget.confirmDismiss(1, 0);
       if (dismiss) {
         widget.onDismissed(DismissDirection.startToEnd);
-        widget.controller?._dispose();
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
@@ -110,7 +109,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
       final dismiss = widget.confirmDismiss(-1, 0);
       if (dismiss) {
         widget.onDismissed(DismissDirection.endToStart);
-        widget.controller?._dispose();
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
