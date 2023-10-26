@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 class MmSwipeableController {
   _MmSwipeableState? _swipeableState;
+  bool _debugDisposed = false;
 
   void _bind(_MmSwipeableState state) {
     _swipeableState = state;
@@ -15,7 +16,15 @@ class MmSwipeableController {
   }
 
   void dispose() {
+    assert(MmSwipeableController._debugAssertNotDisposed(this));
+    assert(() {
+      _debugDisposed = true;
+      return true;
+    }());
     _swipeableState = null;
+    if (kFlutterMemoryAllocationsEnabled) {
+      MemoryAllocations.instance.dispatchObjectDisposed(object: this);
+    }
   }
 
   void swipeLeft() {
@@ -32,6 +41,20 @@ class MmSwipeableController {
       '_swipeableState is null on controller:$hashCode',
     );
     return _swipeableState?.swipeRight();
+  }
+
+  static bool _debugAssertNotDisposed(MmSwipeableController controller) {
+    assert(() {
+      if (controller._debugDisposed) {
+        throw FlutterError(
+          'A ${controller.runtimeType} was used after being disposed.\n'
+          'Once you have called dispose() on a ${controller.runtimeType}, it '
+          'can no longer be used.',
+        );
+      }
+      return true;
+    }());
+    return true;
   }
 }
 
