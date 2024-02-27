@@ -81,13 +81,13 @@ class MmSwipeable extends StatefulWidget {
 }
 
 class _MmSwipeableState extends State<MmSwipeable> {
-  double _rotate = 0;
-  double _xPosition = 0;
-  double _yPosition = 0;
+  double rotate = 0;
+  double xPosition = 0;
+  double yPosition = 0;
   double? width;
 
-  static const Duration _swipeDuration = Duration(milliseconds: 2000);
-  static const Duration _dismissOffset = Duration(milliseconds: 200);
+  static const Duration swipeDuration = Duration(milliseconds: 2000);
+  static const Duration dismissOffset = Duration(milliseconds: 200);
 
   Duration animationDuration = Duration.zero;
 
@@ -99,22 +99,25 @@ class _MmSwipeableState extends State<MmSwipeable> {
   }
 
   void swipeRight() {
+    if (!mounted) return;
     setState(() {
-      animationDuration = _swipeDuration;
-      _rotate = _rotate * 5;
-      _xPosition = width! * 2;
-      _yPosition = 0;
+      animationDuration = swipeDuration;
+      rotate = rotate * 5;
+      xPosition = width! * 2;
+      yPosition = 0;
     });
-    Future.delayed(_dismissOffset, () {
+
+    Future.delayed(dismissOffset, () {
+      if (!mounted) return;
       final dismiss = widget.confirmDismiss(1, 0);
       if (dismiss) {
         widget.onDismissed(DismissDirection.startToEnd);
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
-          _rotate = 0;
-          _xPosition = 0;
-          _yPosition = 0;
+          rotate = 0;
+          xPosition = 0;
+          yPosition = 0;
         });
         widget.onDismissCancelled?.call(DismissDirection.startToEnd);
       }
@@ -122,22 +125,25 @@ class _MmSwipeableState extends State<MmSwipeable> {
   }
 
   void swipeLeft() {
+    if (!mounted) return;
     setState(() {
-      animationDuration = _swipeDuration;
-      _rotate = _rotate * 5;
-      _xPosition = -(width! * 2);
-      _yPosition = 0;
+      animationDuration = swipeDuration;
+      rotate = rotate * 5;
+      xPosition = -(width! * 2);
+      yPosition = 0;
     });
-    Future.delayed(_dismissOffset, () {
+
+    Future.delayed(dismissOffset, () {
+      if (!mounted) return;
       final dismiss = widget.confirmDismiss(-1, 0);
       if (dismiss) {
         widget.onDismissed(DismissDirection.endToStart);
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
-          _rotate = 0;
-          _xPosition = 0;
-          _yPosition = 0;
+          rotate = 0;
+          xPosition = 0;
+          yPosition = 0;
         });
         widget.onDismissCancelled?.call(DismissDirection.endToStart);
       }
@@ -151,42 +157,42 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
     return GestureDetector(
       onPanUpdate: (details) {
-        widget.confirmDismiss(clampDouble((_rotate * 90) / 10, -1, 1), 0);
+        if (!mounted) return;
+        widget.confirmDismiss(clampDouble((rotate * 90) / 10, -1, 1), 0);
         setState(() {
           animationDuration = Duration.zero;
-          _rotate = _xPosition / (width! * (pi * 1.5));
-          _xPosition += details.delta.dx;
-          _yPosition += 0;
+          rotate = xPosition / (width! * (pi * 1.5));
+          xPosition += details.delta.dx;
+          yPosition += 0;
         });
       },
       onPanEnd: (details) {
+        if (!mounted) return;
         const speedTreshold = 8;
-        final velocity = clampDouble(
-            (details.velocity.pixelsPerSecond.dx / width!) / speedTreshold,
-            -1,
-            1);
-        final angleReturn = widget.confirmDismiss(
-            clampDouble((_rotate * 90) / 10, -1, 1), velocity);
-        final swipeRight = (angleReturn && _xPosition > 0);
-        final swipeLeft = (angleReturn && _xPosition < 0);
+        final dx = details.velocity.pixelsPerSecond.dx;
+        final velocity = (dx / width!) / speedTreshold;
+        final nvelocity = clampDouble(velocity, -1, 1);
+        final nangle = clampDouble((rotate * 90) / 10, -1, 1);
+        final angleReturn = widget.confirmDismiss(nangle, nvelocity);
+        final swipeRight = (angleReturn && xPosition > 0);
+        final swipeLeft = (angleReturn && xPosition < 0);
+
         if (swipeRight) {
           this.swipeRight();
         } else if (swipeLeft) {
           this.swipeLeft();
         } else {
-          final cancelDirection = _xPosition > 0
+          final cancelDirection = xPosition > 0
               ? DismissDirection.startToEnd
               : DismissDirection.endToStart;
           widget.confirmDismiss(0, 0);
           setState(() {
             animationDuration = const Duration(seconds: 1);
-            _rotate = 0;
-            _xPosition = 0;
-            _yPosition = 0;
+            rotate = 0;
+            xPosition = 0;
+            yPosition = 0;
           });
-          widget.onDismissCancelled?.call(
-            cancelDirection,
-          );
+          widget.onDismissCancelled?.call(cancelDirection);
         }
       },
       child: Stack(
@@ -196,8 +202,8 @@ class _MmSwipeableState extends State<MmSwipeable> {
             duration: animationDuration,
             curve: Curves.elasticOut,
             transform: Matrix4.identity()
-              ..translate(_xPosition, _yPosition)
-              ..rotateZ(_rotate),
+              ..translate(xPosition, yPosition)
+              ..rotateZ(rotate),
             transformAlignment: Alignment.center,
             child: childWidget,
           ),
