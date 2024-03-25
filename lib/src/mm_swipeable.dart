@@ -15,6 +15,7 @@ class MmSwipeableController {
     return _swipeableState?.width != null;
   }
 
+  /// Dispose the controller
   void dispose() {
     assert(MmSwipeableController._debugAssertNotDisposed(this));
     assert(() {
@@ -23,10 +24,11 @@ class MmSwipeableController {
     }());
     _swipeableState = null;
     if (kFlutterMemoryAllocationsEnabled) {
-      MemoryAllocations.instance.dispatchObjectDisposed(object: this);
+      FlutterMemoryAllocations.instance.dispatchObjectDisposed(object: this);
     }
   }
 
+  /// Swipe the widget to the left
   void swipeLeft() {
     assert(
       _swipeableState != null,
@@ -35,6 +37,7 @@ class MmSwipeableController {
     return _swipeableState?.swipeLeft();
   }
 
+  /// Swipe the widget to the right
   void swipeRight() {
     assert(
       _swipeableState != null,
@@ -59,9 +62,16 @@ class MmSwipeableController {
 }
 
 class MmSwipeable extends StatefulWidget {
+  /// Function to confirm the dismiss of the widget
   final bool Function(double angle, double velocity) confirmDismiss;
+
+  /// Function to be called when the widget is dismissed
   final Function(DismissDirection) onDismissed;
+
+  /// Function to be called when the widget is not dismissed
   final Function(DismissDirection)? onDismissCancelled;
+
+  /// Controller to swipe the widget
   final MmSwipeableController? controller;
 
   final Widget child;

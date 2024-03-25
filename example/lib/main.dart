@@ -33,22 +33,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    cardList = [
-      "https://makronline.com/static/ataberk-83e2822b436da6c6ebd9029e265a946f.png",
-      "https://makronline.com/static/atakan-a08126e2344e5c515a7a52706e36b2f1.png",
-      "https://makronline.com/static/aybars-74dc4cc06c8d28d0b85aba2d77bd7ebd.jpg",
-      "https://makronline.com/static/altan-17f3bac93114f3b72de01badb6c567f6.jpg",
-      "https://makronline.com/static/erem-324159ea213143f0b18b471e0c09c488.png",
-      "https://makronline.com/static/metehan-8525cc3a41834109482b8821c9352a3b.jpg",
-      "https://makronline.com/static/resul-08a9334491899764f9170e7e6c736577.jpg",
-      "https://makronline.com/static/aleyna2-a319080c793b6d7f1dc43a035b798a9a.jpg",
-      "https://makronline.com/static/zeynep-0d861a3d012dd529e9816e681f9928f6.jpg",
-      "https://makronline.com/static/ramazan-0597cdcd3cd4559b0044bc3e203e80b3.jpg",
-      "https://makronline.com/static/selim-2a3a55fe31e8f596053a149e1e75ec36.jpg",
-      "https://makronline.com/static/ilhan-a9f87234f336f19a511b43078e8b9f34.png",
-      "https://makronline.com/static/enes-ali-dfb6a2b54cb5c1416e8a4b1a0e3b21e3.jpg",
-      "https://makronline.com/static/hilal2-75af80a1dc341711d10ab1a4935ecae7.jpg",
-    ];
+    cardList = List.generate(10,
+        (index) => 'https://picsum.photos/id/${index * index * 10}/200/300');
 
     controllers = List<MmSwipeableController>.generate(
       cardList.length,
@@ -170,255 +156,58 @@ class _MatchCardState extends State<MatchCard> {
       },
       child: Stack(
         children: [
-          Column(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: SingleChildScrollView(
-                    child: Container(
-                      color: Colors.blue,
-                      child: Column(
-                        children: [
-                          Stack(
-                            children: [
-                              SizedBox(
-                                height: MediaQuery.of(context).size.height * .8,
-                                child: Image.network(
-                                  widget.url,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
-                                            child: Image.network(
-                                              "https://makronline.com/static/metehan-8525cc3a41834109482b8821c9352a3b.jpg",
-                                              height: 32,
-                                              width: 32,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          const Text(
-                                            "Metehan Gül",
-                                            style: TextStyle(
-                                                fontSize: 24,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(60),
-                                          color: Colors.purple,
-                                        ),
-                                        child: Row(
-                                          children: const [
-                                            Icon(Icons.star),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              "Super premium",
-                                              style: TextStyle(
-                                                  fontSize: 24,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(60),
-                                          color: Colors.purple,
-                                        ),
-                                        child: Row(
-                                          children: const [
-                                            Icon(Icons.star),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              "Super premium",
-                                              style: TextStyle(
-                                                  fontSize: 24,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(60),
-                                              color: Colors.purple,
-                                            ),
-                                            child: Row(
-                                              children: const [
-                                                Icon(Icons.star),
-                                                SizedBox(width: 8),
-                                                Text(
-                                                  "Super premium",
-                                                  style: TextStyle(
-                                                      fontSize: 24,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(60),
-                                              color: Colors.purple,
-                                            ),
-                                            child: Row(
-                                              children: const [
-                                                Icon(Icons.star),
-                                                SizedBox(width: 8),
-                                                Text(
-                                                  "Super premium",
-                                                  style: TextStyle(
-                                                      fontSize: 24,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                                border: Border.all(
-                                                    color: Colors.white,
-                                                    width: 2)),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              child: Image.network(
-                                                "https://makronline.com/static/metehan-8525cc3a41834109482b8821c9352a3b.jpg",
-                                                height: 32,
-                                                width: 32,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: const [
-                                              Text(
-                                                "Aynı anda dinliyorsunuz",
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                "Hep De Yorgun",
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.white,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          for (int i = 0; i < 5; i++) ...{
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.25,
-                                  width: double.infinity,
-                                  child: Image.network(
-                                    "https://makronline.com/static/metehan-8525cc3a41834109482b8821c9352a3b.jpg",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
-                                  child: Column(
-                                    children: const [
-                                      SizedBox(height: 16),
-                                      Text("aksdahdhsakj"),
-                                      SizedBox(height: 8),
-                                      Text("alksdkadklsajldas"),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            )
-                          }
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * .8,
+              child: Image.network(
+                widget.url,
+                fit: BoxFit.cover,
               ),
-            ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Kabul Et",
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.withOpacity(rightTextOpacity)),
+                AnimatedOpacity(
+                  opacity: rightTextOpacity,
+                  duration: Duration.zero,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white,
+                    ),
+                    child: const Text(
+                      "Accept",
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green),
+                    ),
+                  ),
                 ),
-                Text(
-                  "Reddet",
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red.withOpacity(leftTextOpacity)),
-                ),
+                AnimatedOpacity(
+                    opacity: leftTextOpacity,
+                    duration: Duration.zero,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                      ),
+                      child: const Text(
+                        "Reject",
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red),
+                      ),
+                    )),
               ],
             ),
           ),
