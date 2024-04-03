@@ -15,7 +15,11 @@ class MmSwipeableController {
     return _swipeableState?.width != null;
   }
 
-  /// Dispose the controller
+  /// Disposes the controller
+  ///
+  /// This method is responsible for cleaning up resources associated with the controller
+  /// and marking it as disposed. It should be called when the controller is no longer
+  /// needed to prevent memory leaks and ensure proper resource management.
   void dispose() {
     assert(MmSwipeableController._debugAssertNotDisposed(this));
     assert(() {
@@ -28,7 +32,9 @@ class MmSwipeableController {
     }
   }
 
-  /// Swipe the widget to the left
+  /// Manages the swipe to the left
+  ///
+  /// This method triggers the swipe method of MmSwipable to the left on the widget
   void swipeLeft() {
     assert(
       _swipeableState != null,
@@ -37,7 +43,9 @@ class MmSwipeableController {
     return _swipeableState?.swipeLeft();
   }
 
-  /// Swipe the widget to the right
+  /// Manages the swipe to the right
+  ///
+  /// This method triggers the swipe method of MmSwipable to the right on the widget
   void swipeRight() {
     assert(
       _swipeableState != null,
@@ -62,16 +70,29 @@ class MmSwipeableController {
 }
 
 class MmSwipeable extends StatefulWidget {
-  /// Function to confirm the dismiss of the widget
+  /// This function evaluates the swipe action of the widget
+  /// depends on the specific criterias below of the swipe action
+  /// and returns a boolean value to confirm the dismissal of the widget.
+  ///
+  /// The [angle] parameter is the angle of the swipe action.
+  /// The [velocity] parameter is the velocity of the swipe action.
   final bool Function(double angle, double velocity) confirmDismiss;
 
-  /// Function to be called when the widget is dismissed
+  /// This function is called when the widget is dismissed.
+  ///
+  /// This function takes a single argument of type [DismissDirection], indicating the direction
+  /// in which the dismissal occurred. It is triggered when the widget is dismissed by a swipe gesture
+  /// or any other dismissal action, providing a way to handle the dismissal event.
   final Function(DismissDirection) onDismissed;
 
-  /// Function to be called when the widget is not dismissed
+  /// This function evaluates the swipe action of the widget
+  /// and determines whether the widget should be dismissed.
+  /// It evaluates specific criteria related to the swipe action.
   final Function(DismissDirection)? onDismissCancelled;
 
-  /// Controller to swipe the widget
+  /// Controller for handling the swipe action of the widget
+  ///
+  /// This controller provides functionality to interact with and control the behavior of the swipeable widget.
   final MmSwipeableController? controller;
 
   final Widget child;
