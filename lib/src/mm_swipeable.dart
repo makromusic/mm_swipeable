@@ -17,7 +17,7 @@ class MmSwipeableController {
 
   /// Disposes the controller
   ///
-  /// This method is responsible for cleaning up resources associated with the controller
+  /// Responsible for cleaning up resources associated with the controller
   /// and marking it as disposed. It should be called when the controller is no longer
   /// needed to prevent memory leaks and ensure proper resource management.
   void dispose() {
@@ -34,7 +34,7 @@ class MmSwipeableController {
 
   /// Manages the swipe to the left
   ///
-  /// This method triggers the swipe method of MmSwipable to the left on the widget
+  /// Triggers the swipe method of MmSwipable to the left on the widget
   void swipeLeft() {
     assert(
       _swipeableState != null,
@@ -45,7 +45,7 @@ class MmSwipeableController {
 
   /// Manages the swipe to the right
   ///
-  /// This method triggers the swipe method of MmSwipable to the right on the widget
+  /// Triggers the swipe method of MmSwipable to the right on the widget
   void swipeRight() {
     assert(
       _swipeableState != null,
@@ -69,30 +69,66 @@ class MmSwipeableController {
   }
 }
 
+
+
 class MmSwipeable extends StatefulWidget {
-  /// This function evaluates the swipe action of the widget
+
+  //* TODO(hctaskiran): Could be added code block using [angle] and [velocity] parameters, decides whether onDissmissed called or not, returns true or false return value 
+
+  /// Called when user stops swiping action
+  /// 
+  /// Evaluates the swipe action of the widget
   /// depends on the specific criterias below of the swipe action
   /// and returns a boolean value to confirm the dismissal of the widget.
   ///
   /// The [angle] parameter is the angle of the swipe action.
   /// The [velocity] parameter is the velocity of the swipe action.
+  /// 
+  /// ```dart
+  /// confirmDismiss: (angle, velocity) {
+  ///      if (angle > 0.7 || velocity > 0.7) {
+  ///        return true;
+  ///      } else if (angle < -0.7 || velocity < -0.7) {
+  ///        return true;
+  ///      }
+  ///      return false;
+  ///    },
+  /// ```
   final bool Function(double angle, double velocity) confirmDismiss;
 
-  /// This function is called when the widget is dismissed.
+
+  //* TODO(hctaskiran): Need more specific explanation, could be added a code block in example
+  /// Called when [confirmDismiss] returns true.
   ///
-  /// This function takes a single argument of type [DismissDirection], indicating the direction
+  /// Takes a single argument of type [DismissDirection], indicating the direction
   /// in which the dismissal occurred. It is triggered when the widget is dismissed by a swipe gesture
   /// or any other dismissal action, providing a way to handle the dismissal event.
+  /// It doesn't dismiss from widget tree but dismisses visually
+  /// 
+  /// ```dart
+  ///   onDismissed: (direction) {
+  ///      if (direction == DismissDirection.endToStart) {
+  ///        widget.onSwipe();
+  ///      } else if (direction == DismissDirection.startToEnd) {
+  ///        widget.onSwipe();
+  ///      }
+  ///    },
+  /// ```
   final Function(DismissDirection) onDismissed;
 
-  /// This function evaluates the swipe action of the widget
+
+  //* TODO(hctaskiran): Change the comment to be more specific
+  /// Called when [confirmDismiss] returns false
+  ///
+  /// Takes a single argument of type [DismissDirection], indicating the direction
+  /// Evaluates the swipe action of the widget
   /// and determines whether the widget should be dismissed.
-  /// It evaluates specific criteria related to the swipe action.
+  /// Activates when certain value of [angle] or [velocity] conditions are not met.
   final Function(DismissDirection)? onDismissCancelled;
 
   /// Controller for handling the swipe action of the widget
   ///
-  /// This controller provides functionality to interact with and control the behavior of the swipeable widget.
+  /// Provides functionality to interact with and control the behavior of the swipeable widget.
   final MmSwipeableController? controller;
 
   final Widget child;
