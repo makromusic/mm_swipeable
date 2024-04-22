@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class MmSwipeableController {
   _MmSwipeableState? _swipeableState;
@@ -11,15 +12,13 @@ class MmSwipeableController {
     _swipeableState = state;
   }
 
+  /// Returns whether the widget can be swiped
+  /// Returns true if the widget can be swiped
+  /// Returns false if the widget can't be swiped
   bool get canSwipe {
     return _swipeableState?.width != null;
   }
 
-  /// Disposes the controller
-  ///
-  /// Responsible for cleaning up resources associated with the controller
-  /// and marking it as disposed. It should be called when the controller is no longer
-  /// needed to prevent memory leaks and ensure proper resource management.
   void dispose() {
     assert(MmSwipeableController._debugAssertNotDisposed(this));
     assert(() {
@@ -69,21 +68,16 @@ class MmSwipeableController {
   }
 }
 
-
-
 class MmSwipeable extends StatefulWidget {
-
-  //* TODO(hctaskiran): Could be added code block using [angle] and [velocity] parameters, decides whether onDissmissed called or not, returns true or false return value 
-
-  /// Called when user stops swiping action
-  /// 
+  /// Called when user ends swiping action
+  ///
   /// Evaluates the swipe action of the widget
-  /// depends on the specific criterias below of the swipe action
+  /// swipe action depends on certain [angle] and [speed] criteria
   /// and returns a boolean value to confirm the dismissal of the widget.
   ///
   /// The [angle] parameter is the angle of the swipe action.
   /// The [velocity] parameter is the velocity of the swipe action.
-  /// 
+  ///
   /// ```dart
   /// confirmDismiss: (angle, velocity) {
   ///      if (angle > 0.7 || velocity > 0.7) {
@@ -96,15 +90,13 @@ class MmSwipeable extends StatefulWidget {
   /// ```
   final bool Function(double angle, double velocity) confirmDismiss;
 
-
-  //* TODO(hctaskiran): Need more specific explanation, could be added a code block in example
   /// Called when [confirmDismiss] returns true.
   ///
   /// Takes a single argument of type [DismissDirection], indicating the direction
   /// in which the dismissal occurred. It is triggered when the widget is dismissed by a swipe gesture
   /// or any other dismissal action, providing a way to handle the dismissal event.
   /// It doesn't dismiss from widget tree but dismisses visually
-  /// 
+  ///
   /// ```dart
   ///   onDismissed: (direction) {
   ///      if (direction == DismissDirection.endToStart) {
@@ -116,8 +108,6 @@ class MmSwipeable extends StatefulWidget {
   /// ```
   final Function(DismissDirection) onDismissed;
 
-
-  //* TODO(hctaskiran): Change the comment to be more specific
   /// Called when [confirmDismiss] returns false
   ///
   /// Takes a single argument of type [DismissDirection], indicating the direction

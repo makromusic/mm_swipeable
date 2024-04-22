@@ -1,10 +1,9 @@
 import 'dart:math';
 
+import 'package:english_words/english_words.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mm_swipeable/mm_swipeable.dart';
-import 'package:english_words/english_words.dart';
 
 void main() {
   runApp(const MyApp());
