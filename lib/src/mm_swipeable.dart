@@ -12,13 +12,14 @@ class MmSwipeableController {
     _swipeableState = state;
   }
 
-  /// Returns whether the widget can be swiped
-  /// Returns true if the widget can be swiped
-  /// Returns false if the widget can't be swiped
+  /// Returns [true] if the widget can be swiped.
   bool get canSwipe {
     return _swipeableState?.width != null;
   }
 
+  /// Disposes the controller and releases the resources used by it.
+  ///
+  /// After calling this method, the controller is not usable anymore.
   void dispose() {
     assert(MmSwipeableController._debugAssertNotDisposed(this));
     assert(() {
@@ -31,26 +32,22 @@ class MmSwipeableController {
     }
   }
 
-  /// Manages the swipe to the left
-  ///
-  /// Triggers the swipe method of MmSwipable to the left on the widget
+  /// Swipes the widget to the left automatically.
   void swipeLeft() {
     assert(
       _swipeableState != null,
       '_swipeableState is null on controller:$hashCode',
     );
-    return _swipeableState?.swipeLeft();
+    return _swipeableState?._swipeLeft();
   }
 
-  /// Manages the swipe to the right
-  ///
-  /// Triggers the swipe method of MmSwipable to the right on the widget
+  /// Swipes the widget to the right automatically.
   void swipeRight() {
     assert(
       _swipeableState != null,
       '_swipeableState is null on controller:$hashCode',
     );
-    return _swipeableState?.swipeRight();
+    return _swipeableState?._swipeRight();
   }
 
   static bool _debugAssertNotDisposed(MmSwipeableController controller) {
@@ -68,53 +65,93 @@ class MmSwipeableController {
   }
 }
 
+/// [MmSwipeable] is a widget that can be swiped to the left or right.
+///
+/// It doesn't automatically dismiss the widget when it is swiped.
+///
+/// It's up to the user to confirm the swipe action and dismiss the widget.
+///
+/// ```dart
+/// MmSwipeable(
+///   confirmSwipe: (angle, velocity) {
+///     return angle.abs() > 0.7 || velocity.abs() > 0.7;
+///   },
+///   onSwipedLeft: () {
+///     print('Swiped Left');
+///   },
+///   onSwipedRight: () {
+///     print('Swiped Right');
+///   },
+///   child: Container(
+///     width: 200,
+///     height: 200,
+///     color: Colors.blue,
+///   ),
+/// )
+/// ```
 class MmSwipeable extends StatefulWidget {
-  /// Called when user ends swiping action
+  /// [confirmSwipe] is a callback function that returns a boolean value
+  /// to confirm the dismissal of the widget.
   ///
-  /// Evaluates the swipe action of the widget
-  /// swipe action depends on certain [angle] and [speed] criteria
-  /// and returns a boolean value to confirm the dismissal of the widget.
+  /// The [angle] parameter is the last angle of the swipe action when
+  /// the swipe action is completed. It is a value between -1 and 1.
   ///
-  /// The [angle] parameter is the angle of the swipe action.
-  /// The [velocity] parameter is the velocity of the swipe action.
+  /// The [velocity] parameter is the last velocity of the swipe action
+  /// when the swipe action is completed. It is a value between -1 and 1.
   ///
-  /// ```dart
-  /// confirmDismiss: (angle, velocity) {
-  ///      if (angle > 0.7 || velocity > 0.7) {
-  ///        return true;
-  ///      } else if (angle < -0.7 || velocity < -0.7) {
-  ///        return true;
-  ///      }
-  ///      return false;
-  ///    },
-  /// ```
-  final bool Function(double angle, double velocity) confirmDismiss;
-
-  /// Called when [confirmDismiss] returns true.
+  /// The sign of the [angle] and [velocity] values indicates the direction of the swipe action.
+  /// If the value is positive, the swipe action is from left to right. Otherwise, it is from right to left.
   ///
-  /// Takes a single argument of type [DismissDirection], indicating the direction
-  /// in which the dismissal occurred. It is triggered when the widget is dismissed by a swipe gesture
-  /// or any other dismissal action, providing a way to handle the dismissal event.
-  /// It doesn't dismiss from widget tree but dismisses visually
+  /// The intensity of the swipe action is determined by the absolute value of the [angle] and [velocity] values.
+  ///
+  /// [confirmSwipe] must return true if the [onSwipedLeft] or [onSwipedRight]
+  /// callback should be triggered. It must return false if the [onSwipeCancelled]
+  /// callback should be triggered.
+  ///
+  /// It is also possible to use custom conditions to determine
+  /// whether the swipe action should be confirmed or not.
+  ///
   ///
   /// ```dart
-  ///   onDismissed: (direction) {
-  ///      if (direction == DismissDirection.endToStart) {
-  ///        widget.onSwipe();
-  ///      } else if (direction == DismissDirection.startToEnd) {
-  ///        widget.onSwipe();
-  ///      }
-  ///    },
+  /// confirmSwipe: (angle, velocity) {
+  ///   return angle.abs() > 0.7 || velocity.abs() > 0.7;
+  /// }
   /// ```
-  final Function(DismissDirection) onDismissed;
+  final bool Function(double angle, double velocity) confirmSwipe;
 
-  /// Called when [confirmDismiss] returns false
+  /// Called when the widget is swiped to the left and the swipe action is confirmed.
   ///
-  /// Takes a single argument of type [DismissDirection], indicating the direction
-  /// Evaluates the swipe action of the widget
-  /// and determines whether the widget should be dismissed.
-  /// Activates when certain value of [angle] or [velocity] conditions are not met.
-  final Function(DismissDirection)? onDismissCancelled;
+  /// ```dart
+  /// onSwipedLeft: () {
+  ///   print('Swiped Left');
+  /// },
+  /// ```
+  final Function() onSwipedLeft;
+
+  /// Called when the widget is swiped to the right and the swipe action is confirmed.
+  ///
+  /// ```dart
+  /// onSwipedRight: () {
+  ///   print('Swiped Right');
+  /// },
+  /// ```
+  final Function() onSwipedRight;
+
+  /// Called when the widget is swiped and the swipe action is cancelled.
+  ///
+  /// ```dart
+  /// onSwipeRightCancelled: () {
+  ///   print('Swiping Right Cancelled');
+  /// },
+  final Function()? onSwipeRightCancelled;
+
+  /// Called when the widget is swiped and the swipe action is cancelled.
+  ///
+  /// ```dart
+  /// onSwipeLeftCancelled: () {
+  ///   print('Swiping Left Cancelled');
+  /// },
+  final Function()? onSwipeLeftCancelled;
 
   /// Controller for handling the swipe action of the widget
   ///
@@ -123,10 +160,12 @@ class MmSwipeable extends StatefulWidget {
 
   final Widget child;
   const MmSwipeable({
-    required this.confirmDismiss,
+    required this.confirmSwipe,
+    required this.onSwipedLeft,
+    required this.onSwipedRight,
     required this.child,
-    required this.onDismissed,
-    this.onDismissCancelled,
+    this.onSwipeRightCancelled,
+    this.onSwipeLeftCancelled,
     this.controller,
     super.key,
   });
@@ -155,7 +194,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
     super.initState();
   }
 
-  void swipeRight() {
+  void _swipeRight() {
     if (!mounted) return;
     setState(() {
       animationDuration = swipeDuration;
@@ -166,9 +205,9 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
     Future.delayed(dismissOffset, () {
       if (!mounted) return;
-      final dismiss = widget.confirmDismiss(1, 0);
+      final dismiss = widget.confirmSwipe(1, 0);
       if (dismiss) {
-        widget.onDismissed(DismissDirection.startToEnd);
+        widget.onSwipedRight();
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
@@ -176,12 +215,12 @@ class _MmSwipeableState extends State<MmSwipeable> {
           xPosition = 0;
           yPosition = 0;
         });
-        widget.onDismissCancelled?.call(DismissDirection.startToEnd);
+        widget.onSwipeRightCancelled?.call();
       }
     });
   }
 
-  void swipeLeft() {
+  void _swipeLeft() {
     if (!mounted) return;
     setState(() {
       animationDuration = swipeDuration;
@@ -192,9 +231,9 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
     Future.delayed(dismissOffset, () {
       if (!mounted) return;
-      final dismiss = widget.confirmDismiss(-1, 0);
+      final dismiss = widget.confirmSwipe(-1, 0);
       if (dismiss) {
-        widget.onDismissed(DismissDirection.endToStart);
+        widget.onSwipedLeft();
       } else {
         setState(() {
           animationDuration = const Duration(seconds: 1);
@@ -202,7 +241,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
           xPosition = 0;
           yPosition = 0;
         });
-        widget.onDismissCancelled?.call(DismissDirection.endToStart);
+        widget.onSwipeLeftCancelled?.call();
       }
     });
   }
@@ -215,7 +254,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
     return GestureDetector(
       onPanUpdate: (details) {
         if (!mounted) return;
-        widget.confirmDismiss(clampDouble((rotate * 90) / 10, -1, 1), 0);
+        widget.confirmSwipe(clampDouble((rotate * 90) / 10, -1, 1), 0);
         setState(() {
           animationDuration = Duration.zero;
           rotate = xPosition / (width! * (pi * 1.5));
@@ -230,26 +269,27 @@ class _MmSwipeableState extends State<MmSwipeable> {
         final velocity = (dx / width!) / speedTreshold;
         final nvelocity = clampDouble(velocity, -1, 1);
         final nangle = clampDouble((rotate * 90) / 10, -1, 1);
-        final angleReturn = widget.confirmDismiss(nangle, nvelocity);
+        final angleReturn = widget.confirmSwipe(nangle, nvelocity);
         final swipeRight = (angleReturn && xPosition > 0);
         final swipeLeft = (angleReturn && xPosition < 0);
 
         if (swipeRight) {
-          this.swipeRight();
+          _swipeRight();
         } else if (swipeLeft) {
-          this.swipeLeft();
+          _swipeLeft();
         } else {
-          final cancelDirection = xPosition > 0
-              ? DismissDirection.startToEnd
-              : DismissDirection.endToStart;
-          widget.confirmDismiss(0, 0);
+          widget.confirmSwipe(0, 0);
           setState(() {
             animationDuration = const Duration(seconds: 1);
             rotate = 0;
             xPosition = 0;
             yPosition = 0;
           });
-          widget.onDismissCancelled?.call(cancelDirection);
+          if (xPosition > 0) {
+            widget.onSwipeRightCancelled?.call();
+          } else {
+            widget.onSwipeLeftCancelled?.call();
+          }
         }
       },
       child: Stack(

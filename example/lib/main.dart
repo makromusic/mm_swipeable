@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:english_words/english_words.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mm_swipeable/mm_swipeable.dart';
@@ -30,27 +27,41 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List cardList = [];
+  final Map<MatchData, MmSwipeableController> matchCards = {
+    const MatchData(
+      id: 1,
+      name: 'John Doe',
+      bio: 'I am a software engineer',
+      imageUrl:
+          'https://images.pexels.com/photos/4123018/pexels-photo-4123018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    ): MmSwipeableController(),
+    const MatchData(
+      id: 2,
+      name: 'Jane Doe',
+      bio: 'I am a content creator',
+      imageUrl:
+          'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    ): MmSwipeableController(),
+    const MatchData(
+      id: 3,
+      name: 'John Doe',
+      bio: 'I am a software engineer',
+      imageUrl:
+          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ): MmSwipeableController(),
+    const MatchData(
+      id: 4,
+      name: 'Jane Doe',
+      bio: 'I am a software engineer',
+      imageUrl:
+          'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    ): MmSwipeableController(),
+  };
 
-  List<MmSwipeableController> controllers = [];
-
-  @override
-  void initState() {
-    cardList = [
-      "https://images.pexels.com/photos/4123018/pexels-photo-4123018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/2589653/pexels-photo-2589653.jpeg?auto=compress&cs=tinysrgb&w=1200",
-      "https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=1200",
-    ];
-
-    controllers = List<MmSwipeableController>.generate(
-      cardList.length,
-      (index) => MmSwipeableController(),
-    );
-    super.initState();
+  void removeMatchCard(MatchData matchData) {
+    setState(() {
+      matchCards.remove(matchData);
+    });
   }
 
   @override
@@ -60,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         centerTitle: true,
         title: Image.asset(
-          "assets/makromusic_logo_with_text.png",
+          'assets/makromusic_logo_with_text.png',
           height: 30,
         ),
       ),
@@ -71,15 +82,23 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Stack(
                 children: [
-                  for (int i = 0; i < cardList.length; i++) ...{
+                  for (int i = 0; i < matchCards.length; i++) ...{
                     MatchCard(
-                      controller: controllers[i],
-                      url: cardList[i],
-                      onSwipe: () {
-                        setState(() {
-                          cardList.remove(cardList[i]);
-                          controllers.remove(controllers[i]);
-                        });
+                      controller: matchCards.values.toList()[i],
+                      matchData: matchCards.keys.toList()[i],
+                      onSwipeRight: () {
+                        final matchData = matchCards.keys.toList()[i];
+                        removeMatchCard(matchData);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('You accepted ${matchData.name}'),
+                        ));
+                      },
+                      onSwipeLeft: () {
+                        final matchData = matchCards.keys.toList()[i];
+                        removeMatchCard(matchData);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('You rejected ${matchData.name}'),
+                        ));
                       },
                     )
                   },
@@ -93,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      controllers.last.swipeLeft();
+                      matchCards.values.last.swipeLeft();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -108,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color(0xFF0F141E),
                       ),
                       child: const Text(
-                        "Reject",
+                        'Reject',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24,
@@ -123,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      controllers.last.swipeRight();
+                      matchCards.values.last.swipeRight();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -138,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color(0xFF42C0C6),
                       ),
                       child: const Text(
-                        "Accept",
+                        'Accept',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24,
@@ -160,14 +179,17 @@ class _HomePageState extends State<HomePage> {
 
 class MatchCard extends StatefulWidget {
   final MmSwipeableController controller;
-  final String url;
-  final Function onSwipe;
+  final MatchData matchData;
+  final Function onSwipeLeft;
+  final Function onSwipeRight;
 
-  const MatchCard(
-      {required this.url,
-      required this.onSwipe,
-      super.key,
-      required this.controller});
+  const MatchCard({
+    super.key,
+    required this.onSwipeLeft,
+    required this.onSwipeRight,
+    required this.controller,
+    required this.matchData,
+  });
 
   @override
   State<MatchCard> createState() => _MatchCardState();
@@ -176,46 +198,34 @@ class MatchCard extends StatefulWidget {
 class _MatchCardState extends State<MatchCard> {
   double leftTextOpacity = 0;
   double rightTextOpacity = 0;
-  late final String userName;
-  String userBio = "";
 
-  @override
-  void initState() {
-    userName = nouns[Random().nextInt(100)];
-    for (int i = 0; i < 7; i++) {
-      final word1 = adjectives[Random().nextInt(100)];
-      final word2 = nouns[Random().nextInt(100)];
-      userBio = ("$userBio $word1 $word2").trim();
-    }
-    super.initState();
+  void resetTextOpacity() {
+    setState(() {
+      leftTextOpacity = 0;
+      rightTextOpacity = 0;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MmSwipeable(
       controller: widget.controller,
-      confirmDismiss: (angle, velocity) {
+      confirmSwipe: (angle, velocity) {
         setState(() {
           leftTextOpacity = clampDouble(-angle, 0, 1);
           rightTextOpacity = clampDouble(angle, 0, 1);
         });
-        if (angle > 0.7 || velocity > 0.7) {
-          return true;
-        } else if (angle < -0.7 || velocity < -0.7) {
-          return true;
-        }
-        return false;
+        final aangle = angle.abs();
+        final avelocity = velocity.abs();
+        return aangle > 0.7 || avelocity > 0.7;
       },
-      onDismissed: (direction) {
-        setState(() {
-          leftTextOpacity = 0;
-          rightTextOpacity = 0;
-        });
-        if (direction == DismissDirection.endToStart) {
-          widget.onSwipe();
-        } else if (direction == DismissDirection.startToEnd) {
-          widget.onSwipe();
-        }
+      onSwipedRight: () {
+        widget.onSwipeRight();
+        resetTextOpacity();
+      },
+      onSwipedLeft: () {
+        widget.onSwipeLeft();
+        resetTextOpacity();
       },
       child: Stack(
         children: [
@@ -224,7 +234,7 @@ class _MatchCardState extends State<MatchCard> {
             child: SizedBox(
               height: MediaQuery.of(context).size.height * .8,
               child: Image.network(
-                widget.url,
+                widget.matchData.imageUrl,
                 fit: BoxFit.cover,
               ),
             ),
@@ -243,8 +253,10 @@ class _MatchCardState extends State<MatchCard> {
                 ),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -257,14 +269,14 @@ class _MatchCardState extends State<MatchCard> {
                             height: 50,
                             width: 50,
                             child: Image.network(
-                              widget.url,
+                              widget.matchData.imageUrl,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          userName,
+                          widget.matchData.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -275,7 +287,7 @@ class _MatchCardState extends State<MatchCard> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      userBio,
+                      widget.matchData.bio,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -295,14 +307,16 @@ class _MatchCardState extends State<MatchCard> {
                   opacity: rightTextOpacity,
                   duration: Duration.zero,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       color: const Color(0xFF42C0C6),
                     ),
                     child: const Text(
-                      "Accept",
+                      'Accept',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -312,24 +326,27 @@ class _MatchCardState extends State<MatchCard> {
                   ),
                 ),
                 AnimatedOpacity(
-                    opacity: leftTextOpacity,
-                    duration: Duration.zero,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xFF0F141E),
+                  opacity: leftTextOpacity,
+                  duration: Duration.zero,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFF0F141E),
+                    ),
+                    child: const Text(
+                      'Reject',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      child: const Text(
-                        "Reject",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -337,4 +354,18 @@ class _MatchCardState extends State<MatchCard> {
       ),
     );
   }
+}
+
+class MatchData {
+  final int id;
+  final String name;
+  final String bio;
+  final String imageUrl;
+
+  const MatchData({
+    required this.id,
+    required this.name,
+    required this.bio,
+    required this.imageUrl,
+  });
 }
