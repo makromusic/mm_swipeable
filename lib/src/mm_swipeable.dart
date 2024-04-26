@@ -1,97 +1,43 @@
-import 'dart:math';
+part of mm_swipeable;
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
-class MmSwipeableController {
-  _MmSwipeableState? _swipeableState;
-  bool _debugDisposed = false;
-
-  void _bind(_MmSwipeableState state) {
-    _swipeableState = state;
-  }
-
-  /// Returns [true] if the widget can be swiped.
-  bool get canSwipe {
-    return _swipeableState?.width != null;
-  }
-
-  /// Disposes the controller and releases the resources used by it.
-  ///
-  /// After calling this method, the controller is not usable anymore.
-  void dispose() {
-    assert(MmSwipeableController._debugAssertNotDisposed(this));
-    assert(() {
-      _debugDisposed = true;
-      return true;
-    }());
-    _swipeableState = null;
-    if (kFlutterMemoryAllocationsEnabled) {
-      FlutterMemoryAllocations.instance.dispatchObjectDisposed(object: this);
-    }
-  }
-
-  /// Swipes the widget to the left automatically.
-  void swipeLeft() {
-    assert(
-      _swipeableState != null,
-      '_swipeableState is null on controller:$hashCode',
-    );
-    return _swipeableState?._swipeLeft();
-  }
-
-  /// Swipes the widget to the right automatically.
-  void swipeRight() {
-    assert(
-      _swipeableState != null,
-      '_swipeableState is null on controller:$hashCode',
-    );
-    return _swipeableState?._swipeRight();
-  }
-
-  static bool _debugAssertNotDisposed(MmSwipeableController controller) {
-    assert(() {
-      if (controller._debugDisposed) {
-        throw FlutterError(
-          'A ${controller.runtimeType} was used after being disposed.\n'
-          'Once you have called dispose() on a ${controller.runtimeType}, it '
-          'can no longer be used.',
-        );
-      }
-      return true;
-    }());
-    return true;
-  }
-}
-
-/// [MmSwipeable] is a widget that can be swiped to the left or right.
+/// A widget that enables swipe actions in both left and right directions.
 ///
-/// It doesn't automatically dismiss the widget when it is swiped.
+/// This widget allows users to swipe a child widget either to the left or right.
+/// It does not automatically dismiss the child widget upon swipe; instead, it triggers
+/// callback functions to handle the swipe actions.
 ///
-/// It's up to the user to confirm the swipe action and dismiss the widget.
+/// The swipe action can be confirmed or cancelled based on a user-defined condition
+/// specified by the [confirmSwipe] callback. If the condition is met, the respective
+/// [onSwipedLeft] or [onSwipedRight] callback is triggered, indicating that the swipe
+/// action has been successfully confirmed. Otherwise, if the condition is not met,
+/// the corresponding [onSwipeLeftCancelled] or [onSwipeRightCancelled] callback is
+/// triggered to indicate that the swipe action has been cancelled.
+///
+/// Developers can provide a custom [MmSwipeableController] via the [controller] parameter
+/// to interact with and control the behavior of the swipeable widget programmatically.
+///
+/// Example usage:
 ///
 /// ```dart
-/// MmSwipeable(
-///   confirmSwipe: (angle, velocity) {
-///     return angle.abs() > 0.7 || velocity.abs() > 0.7;
-///   },
-///   onSwipedLeft: () {
-///     print('Swiped Left');
-///   },
-///   onSwipedRight: () {
-///     print('Swiped Right');
-///   },
-///   child: Container(
-///     width: 200,
-///     height: 200,
-///     color: Colors.blue,
-///   ),
-/// )
-/// ```
+///MmSwipeable(
+///  confirmSwipe: (angle, velocity) {
+///    return angle.abs() > 0.7 || velocity.abs() > 0.7;
+///  },
+///  onSwipedLeft: () {
+///    print('Swiped Left');
+///  },
+///  onSwipedRight: () {
+///    print('Swiped Right');
+///  },
+///  child: Container(
+///    width: 200,
+///    height: 200,
+///    color: Colors.blue,
+///  ),
+///)
+///```
 class MmSwipeable extends StatefulWidget {
-  /// [confirmSwipe] is a callback function that returns a boolean value
-  /// to confirm the dismissal of the widget.
+  /// A callback function that returns a boolean value to confirm the dismissal of the widget.
   ///
   /// The [angle] parameter is the last angle of the swipe action when
   /// the swipe action is completed. It is a value between -1 and 1.
@@ -99,66 +45,60 @@ class MmSwipeable extends StatefulWidget {
   /// The [velocity] parameter is the last velocity of the swipe action
   /// when the swipe action is completed. It is a value between -1 and 1.
   ///
-  /// The sign of the [angle] and [velocity] values indicates the direction of the swipe action.
-  /// If the value is positive, the swipe action is from left to right. Otherwise, it is from right to left.
+  /// [confirmSwipe] must return `true` if the [onSwipedLeft] or [onSwipedRight]
+  /// callback should be triggered. It must return `false` if the swipe action should be cancelled.
   ///
-  /// The intensity of the swipe action is determined by the absolute value of the [angle] and [velocity] values.
+  /// If the swipe action is cancelled, the [onSwipeRightCancelled] or [onSwipeLeftCancelled]
+  /// callback, corresponding to the direction of the cancelled swipe, will be triggered.
   ///
-  /// [confirmSwipe] must return true if the [onSwipedLeft] or [onSwipedRight]
-  /// callback should be triggered. It must return false if the [onSwipeCancelled]
-  /// callback should be triggered.
-  ///
-  /// It is also possible to use custom conditions to determine
-  /// whether the swipe action should be confirmed or not.
-  ///
-  ///
-  /// ```dart
-  /// confirmSwipe: (angle, velocity) {
-  ///   return angle.abs() > 0.7 || velocity.abs() > 0.7;
-  /// }
-  /// ```
+  /// For example, if the swipe action is cancelled after swiping to the right, the
+  /// [onSwipeRightCancelled] callback will be triggered. Similarly, if the swipe action
+  /// is cancelled after swiping to the left, the [onSwipeLeftCancelled] callback will be triggered.
   final bool Function(double angle, double velocity) confirmSwipe;
 
   /// Called when the widget is swiped to the left and the swipe action is confirmed.
-  ///
-  /// ```dart
-  /// onSwipedLeft: () {
-  ///   print('Swiped Left');
-  /// },
-  /// ```
+  /// This callback is triggered only if the [confirmSwipe] method returns `true`.
   final Function() onSwipedLeft;
 
   /// Called when the widget is swiped to the right and the swipe action is confirmed.
-  ///
-  /// ```dart
-  /// onSwipedRight: () {
-  ///   print('Swiped Right');
-  /// },
-  /// ```
+  /// This callback is triggered only if the [confirmSwipe] method returns `true`.
   final Function() onSwipedRight;
 
-  /// Called when the widget is swiped and the swipe action is cancelled.
-  ///
-  /// ```dart
-  /// onSwipeRightCancelled: () {
-  ///   print('Swiping Right Cancelled');
-  /// },
+  /// Called when the widget is swiped to the right and the swipe action is cancelled.
+  /// This callback is triggered when the swipe action is cancelled after swiping to the right,
+  /// and the [confirmSwipe] method returns `false`.
   final Function()? onSwipeRightCancelled;
 
-  /// Called when the widget is swiped and the swipe action is cancelled.
-  ///
-  /// ```dart
-  /// onSwipeLeftCancelled: () {
-  ///   print('Swiping Left Cancelled');
-  /// },
+  /// Called when the widget is swiped to the left and the swipe action is cancelled.
+  /// This callback is triggered when the swipe action is cancelled after swiping to the left,
+  /// and the [confirmSwipe] method returns `false`.
   final Function()? onSwipeLeftCancelled;
 
-  /// Controller for handling the swipe action of the widget
+  /// Controller for handling the swipe action of the widget.
   ///
-  /// Provides functionality to interact with and control the behavior of the swipeable widget.
+  /// The [controller] parameter allows developers to provide a custom [MmSwipeableController]
+  /// to interact with and control the behavior of the swipeable widget programmatically.
+  /// By using a controller, developers can programmatically trigger swipe actions, check
+  /// the swipeability state of the widget, and dispose of the controller when it's no longer needed.
   final MmSwipeableController? controller;
 
+  /// The child widget that can be swiped.
   final Widget child;
+
+  /// Creates a swipeable widget.
+  ///
+  /// The [confirmSwipe] callback determines whether the swipe action should be confirmed.
+  ///
+  /// The [onSwipedLeft] and [onSwipedRight] callbacks are triggered when the widget is swiped
+  /// to the left or right and the swipe action is confirmed.
+  ///
+  /// The [onSwipeLeftCancelled] and [onSwipeRightCancelled] callbacks are triggered when
+  /// the swipe action is cancelled after swiping to the left or right, respectively.
+  ///
+  /// The [controller] parameter allows providing a custom [MmSwipeableController]
+  /// to interact with and control the behavior of the swipeable widget.
+  ///
+  /// The [child] parameter specifies the child widget to be swiped.
   const MmSwipeable({
     required this.confirmSwipe,
     required this.onSwipedLeft,
@@ -177,25 +117,26 @@ class MmSwipeable extends StatefulWidget {
 }
 
 class _MmSwipeableState extends State<MmSwipeable> {
+  static const swipeDuration = Duration(milliseconds: 2000);
+  static const dismissOffset = Duration(milliseconds: 200);
+
+  Duration animationDuration = Duration.zero;
   double rotate = 0;
   double xPosition = 0;
   double yPosition = 0;
   double? width;
 
-  static const Duration swipeDuration = Duration(milliseconds: 2000);
-  static const Duration dismissOffset = Duration(milliseconds: 200);
-
-  Duration animationDuration = Duration.zero;
-
   @override
   void initState() {
-    if (widget.controller != null) widget.controller?._bind(this);
-
+    if (widget.controller != null) {
+      widget.controller?._bind(this);
+    }
     super.initState();
   }
 
   void _swipeRight() {
     if (!mounted) return;
+
     setState(() {
       animationDuration = swipeDuration;
       rotate = rotate * 5;
@@ -222,6 +163,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
   void _swipeLeft() {
     if (!mounted) return;
+
     setState(() {
       animationDuration = swipeDuration;
       rotate = rotate * 5;

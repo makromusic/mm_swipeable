@@ -6,6 +6,71 @@ void main() {
   runApp(const MyApp());
 }
 
+class Cat {
+  final int id;
+  final String name;
+  final String about;
+  final String imageUrl;
+
+  const Cat({
+    required this.id,
+    required this.name,
+    required this.about,
+    required this.imageUrl,
+  });
+
+  factory Cat.random1() {
+    return const Cat(
+      id: 1,
+      name: 'Fluffy',
+      about: 'Cute and adorable',
+      imageUrl:
+          'https://images.pexels.com/photos/2071882/pexels-photo-2071882.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    );
+  }
+
+  factory Cat.random2() {
+    return const Cat(
+      id: 2,
+      name: 'Whiskers',
+      about: 'Loves to play',
+      imageUrl:
+          'https://images.pexels.com/photos/208984/pexels-photo-208984.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    );
+  }
+
+  factory Cat.random3() {
+    return const Cat(
+      id: 3,
+      name: 'Mittens',
+      about: 'Very friendly',
+      imageUrl:
+          'https://images.pexels.com/photos/1521304/pexels-photo-1521304.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    );
+  }
+}
+
+final Map<Cat, MmSwipeableController> catsAndControllers = {
+  Cat.random1(): MmSwipeableController(),
+  Cat.random2(): MmSwipeableController(),
+  Cat.random3(): MmSwipeableController(),
+  Cat.random1(): MmSwipeableController(),
+  Cat.random2(): MmSwipeableController(),
+  Cat.random3(): MmSwipeableController(),
+  Cat.random1(): MmSwipeableController(),
+  Cat.random2(): MmSwipeableController(),
+  Cat.random3(): MmSwipeableController(),
+  Cat.random1(): MmSwipeableController(),
+  Cat.random2(): MmSwipeableController(),
+  Cat.random3(): MmSwipeableController(),
+  Cat.random1(): MmSwipeableController(),
+  Cat.random2(): MmSwipeableController(),
+  Cat.random3(): MmSwipeableController(),
+  Cat.random1(): MmSwipeableController(),
+  Cat.random2(): MmSwipeableController(),
+  Cat.random3(): MmSwipeableController(),
+};
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -13,56 +78,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'MmSwipeable Demo',
       home: HomePage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final Map<MatchData, MmSwipeableController> matchCards = {
-    const MatchData(
-      id: 1,
-      name: 'John Doe',
-      bio: 'I am a software engineer',
-      imageUrl:
-          'https://images.pexels.com/photos/4123018/pexels-photo-4123018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    ): MmSwipeableController(),
-    const MatchData(
-      id: 2,
-      name: 'Jane Doe',
-      bio: 'I am a content creator',
-      imageUrl:
-          'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-    ): MmSwipeableController(),
-    const MatchData(
-      id: 3,
-      name: 'John Doe',
-      bio: 'I am a software engineer',
-      imageUrl:
-          'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    ): MmSwipeableController(),
-    const MatchData(
-      id: 4,
-      name: 'Jane Doe',
-      bio: 'I am a software engineer',
-      imageUrl:
-          'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    ): MmSwipeableController(),
-  };
-
-  void removeMatchCard(MatchData matchData) {
-    setState(() {
-      matchCards.remove(matchData);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,24 +105,10 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Stack(
                 children: [
-                  for (int i = 0; i < matchCards.length; i++) ...{
-                    MatchCard(
-                      controller: matchCards.values.toList()[i],
-                      matchData: matchCards.keys.toList()[i],
-                      onSwipeRight: () {
-                        final matchData = matchCards.keys.toList()[i];
-                        removeMatchCard(matchData);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('You accepted ${matchData.name}'),
-                        ));
-                      },
-                      onSwipeLeft: () {
-                        final matchData = matchCards.keys.toList()[i];
-                        removeMatchCard(matchData);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('You rejected ${matchData.name}'),
-                        ));
-                      },
+                  for (int i = 0; i < catsAndControllers.length; i++) ...{
+                    CatCard(
+                      controller: catsAndControllers.values.toList()[i],
+                      cat: catsAndControllers.keys.toList()[i],
                     )
                   },
                 ],
@@ -112,11 +121,13 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      matchCards.values.last.swipeLeft();
+                      catsAndControllers.values.last.swipeLeft();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(24),
@@ -127,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color(0xFF0F141E),
                       ),
                       child: const Text(
-                        'Reject',
+                        'Nope',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24,
@@ -142,11 +153,13 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      matchCards.values.last.swipeRight();
+                      catsAndControllers.values.last.swipeRight();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(6),
@@ -157,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                         color: Color(0xFF42C0C6),
                       ),
                       child: const Text(
-                        'Accept',
+                        'Like',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24,
@@ -177,25 +190,21 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class MatchCard extends StatefulWidget {
+class CatCard extends StatefulWidget {
   final MmSwipeableController controller;
-  final MatchData matchData;
-  final Function onSwipeLeft;
-  final Function onSwipeRight;
+  final Cat cat;
 
-  const MatchCard({
+  const CatCard({
     super.key,
-    required this.onSwipeLeft,
-    required this.onSwipeRight,
     required this.controller,
-    required this.matchData,
+    required this.cat,
   });
 
   @override
-  State<MatchCard> createState() => _MatchCardState();
+  State<CatCard> createState() => _CatCardState();
 }
 
-class _MatchCardState extends State<MatchCard> {
+class _CatCardState extends State<CatCard> {
   double leftTextOpacity = 0;
   double rightTextOpacity = 0;
 
@@ -203,6 +212,12 @@ class _MatchCardState extends State<MatchCard> {
     setState(() {
       leftTextOpacity = 0;
       rightTextOpacity = 0;
+    });
+  }
+
+  void remove(Cat matchData) {
+    setState(() {
+      catsAndControllers.remove(matchData);
     });
   }
 
@@ -220,12 +235,20 @@ class _MatchCardState extends State<MatchCard> {
         return aangle > 0.7 || avelocity > 0.7;
       },
       onSwipedRight: () {
-        widget.onSwipeRight();
-        resetTextOpacity();
+        remove(widget.cat);
+        // Do anything you want here
       },
       onSwipedLeft: () {
-        widget.onSwipeLeft();
+        remove(widget.cat);
+        // Do anything you want here
+      },
+      onSwipeLeftCancelled: () {
         resetTextOpacity();
+        // Do anything you want here
+      },
+      onSwipeRightCancelled: () {
+        resetTextOpacity();
+        // Do anything you want here
       },
       child: Stack(
         children: [
@@ -234,7 +257,7 @@ class _MatchCardState extends State<MatchCard> {
             child: SizedBox(
               height: MediaQuery.of(context).size.height * .8,
               child: Image.network(
-                widget.matchData.imageUrl,
+                widget.cat.imageUrl,
                 fit: BoxFit.cover,
               ),
             ),
@@ -269,14 +292,14 @@ class _MatchCardState extends State<MatchCard> {
                             height: 50,
                             width: 50,
                             child: Image.network(
-                              widget.matchData.imageUrl,
+                              widget.cat.imageUrl,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          widget.matchData.name,
+                          widget.cat.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -287,7 +310,7 @@ class _MatchCardState extends State<MatchCard> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      widget.matchData.bio,
+                      widget.cat.about,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -316,7 +339,7 @@ class _MatchCardState extends State<MatchCard> {
                       color: const Color(0xFF42C0C6),
                     ),
                     child: const Text(
-                      'Accept',
+                      'Like',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -338,7 +361,7 @@ class _MatchCardState extends State<MatchCard> {
                       color: const Color(0xFF0F141E),
                     ),
                     child: const Text(
-                      'Reject',
+                      'Nope',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -354,18 +377,4 @@ class _MatchCardState extends State<MatchCard> {
       ),
     );
   }
-}
-
-class MatchData {
-  final int id;
-  final String name;
-  final String bio;
-  final String imageUrl;
-
-  const MatchData({
-    required this.id,
-    required this.name,
-    required this.bio,
-    required this.imageUrl,
-  });
 }

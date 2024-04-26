@@ -1,37 +1,86 @@
 # MmSwipeable
 
-MmSwipeable is a Flutter widget that allows swipe gestures on a child widget, providing dismissible behavior.
+# Image from assets
+
+![Screenshot](assets/screenshot.jpg)
+
+MmSwipeable is a Flutter package that provides a widget for enabling swipe actions in both left and right directions.
 
 ## Features
 
-- Supports swipe gestures for dismissing a widget.
-- Configurable swipe directions and dismissal actions.
-- Provides a customizable UI for smooth and animated swipe transitions.
+- Allows users to swipe a child widget either to the left or right.
+- Does not automatically dismiss the child widget upon swipe; instead, triggers callback functions to handle the swipe actions.
+- Enables customization of swipe action confirmation conditions.
+- Supports programmatically controlling swipe actions through a dedicated controller.
+
+## Installation
+
+To use this package, add `mm_swipeable` as a dependency in your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  mm_swipeable: ^1.0.0
+```
+
+Then import the package in your Dart code:
+
+```dart
+import 'package:mm_swipeable/mm_swipeable.dart';
+```
 
 ## Usage
-
-To use MmSwipeable, wrap the desired child widget with it:
+Wrap the widget that you want to make swipeable with the `MmSwipeable` widget and provide the necessary callback functions to handle swipe actions:
 
 ```dart
 MmSwipeable(
-  confirmDismiss: (angle, velocity) {
-    // Implement your custom logic to confirm the dismiss action
-    // Return true to confirm dismiss, false otherwise
+  confirmSwipe: (angle, velocity) {
+    return angle.abs() > 0.7 || velocity.abs() > 0.7;
   },
-  onDismissed: (direction) {
-    // Handle the dismiss action based on the given direction
+  onSwipedLeft: () {
+    print('Swiped Left');
   },
-  onDismissCancelled: () {
-    // Optional: Handle the case when the dismiss action is cancelled
+  onSwipedRight: () {
+    print('Swiped Right');
   },
-  child: YourChildWidget(),
-);
+  child: Container(
+    width: 200,
+    height: 200,
+    color: Colors.blue,
+  ),
+)
 ```
-In the `confirmDismiss` callback, you can implement your custom logic to determine whether the dismiss action should be confirmed. Return `true` to confirm the dismiss, or `false` to cancel it.
 
-The `onDismissed` callback is triggered when the dismiss action is confirmed. You can handle the dismiss action based on the provided direction parameter, which indicates the swipe direction (e.g., `DismissDirection.startToEnd`, `DismissDirection.endToStart`).
+You can also use a `MmSwipeableController` to programmatically control the behavior of the swipeable widget:
 
-Optionally, you can provide an `onDismissCancelled` callback to handle the case when the dismiss action is cancelled. This can happen when the swipe gesture is not strong enough or when the user cancels the swipe before reaching the threshold.
+```dart
+final swipeController = MmSwipeableController();
 
-## Getting Started
-To use this package, add mm_swipeable as a dependency in your pubspec.yaml file.
+MmSwipeable(
+  controller: swipeController,
+  confirmSwipe: (angle, velocity) {
+    return angle.abs() > 0.7 || velocity.abs() > 0.7;
+  },
+  onSwipedLeft: () {
+    print('Swiped Left');
+  },
+  onSwipedRight: () {
+    print('Swiped Right');
+  },
+  child: Container(
+    width: 200,
+    height: 200,
+    color: Colors.blue,
+  ),
+)
+```
+
+```dart
+// Programmatically trigger a swipe action
+swipeController.swipeRight();
+```
+
+For more details and examples, check out the [example](example) directory.
+
+
+
+
