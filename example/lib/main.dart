@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mm_swipeable/mm_swipeable.dart';
@@ -20,8 +22,8 @@ class Cat {
   });
 
   factory Cat.random1() {
-    return const Cat(
-      id: 1,
+    return Cat(
+      id: Random().nextInt(10000),
       name: 'Fluffy',
       about: 'Cute and adorable',
       imageUrl:
@@ -30,8 +32,8 @@ class Cat {
   }
 
   factory Cat.random2() {
-    return const Cat(
-      id: 2,
+    return Cat(
+      id: Random().nextInt(10000),
       name: 'Whiskers',
       about: 'Loves to play',
       imageUrl:
@@ -40,8 +42,8 @@ class Cat {
   }
 
   factory Cat.random3() {
-    return const Cat(
-      id: 3,
+    return Cat(
+      id: Random().nextInt(10000),
       name: 'Mittens',
       about: 'Very friendly',
       imageUrl:
@@ -50,26 +52,33 @@ class Cat {
   }
 }
 
-final Map<Cat, MmSwipeableController> catsAndControllers = {
-  Cat.random1(): MmSwipeableController(),
-  Cat.random2(): MmSwipeableController(),
-  Cat.random3(): MmSwipeableController(),
-  Cat.random1(): MmSwipeableController(),
-  Cat.random2(): MmSwipeableController(),
-  Cat.random3(): MmSwipeableController(),
-  Cat.random1(): MmSwipeableController(),
-  Cat.random2(): MmSwipeableController(),
-  Cat.random3(): MmSwipeableController(),
-  Cat.random1(): MmSwipeableController(),
-  Cat.random2(): MmSwipeableController(),
-  Cat.random3(): MmSwipeableController(),
-  Cat.random1(): MmSwipeableController(),
-  Cat.random2(): MmSwipeableController(),
-  Cat.random3(): MmSwipeableController(),
-  Cat.random1(): MmSwipeableController(),
-  Cat.random2(): MmSwipeableController(),
-  Cat.random3(): MmSwipeableController(),
-};
+class CatProvider extends ChangeNotifier {
+  final Map<Cat, MmSwipeableController> catsAndControllers = {};
+
+  void initCats() {
+    for (var i = 0; i < 20; i++) {
+      catsAndControllers[Cat.random1()] = MmSwipeableController();
+      catsAndControllers[Cat.random2()] = MmSwipeableController();
+      catsAndControllers[Cat.random3()] = MmSwipeableController();
+    }
+    notifyListeners();
+  }
+
+  void removeCat(Cat cat) {
+    catsAndControllers.remove(cat);
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    for (final controller in catsAndControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+}
+
+final catProvider = CatProvider()..initCats();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -98,93 +107,112 @@ class HomePage extends StatelessWidget {
           height: 30,
         ),
       ),
-      body: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  for (int i = 0; i < catsAndControllers.length; i++) ...{
-                    CatCard(
-                      controller: catsAndControllers.values.toList()[i],
-                      cat: catsAndControllers.keys.toList()[i],
-                    )
-                  },
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: ListenableBuilder(
+        listenable: catProvider,
+        builder: (context, _) {
+          final catsAndControllers = catProvider.catsAndControllers;
+          if (catsAndControllers.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          final length = catsAndControllers.length;
+          final bottom = catsAndControllers.entries.elementAt(length - 2);
+          final top = catsAndControllers.entries.elementAt(length - 1);
+
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            child: Column(
               children: [
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      catsAndControllers.values.last.swipeLeft();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                  child: Stack(
+                    children: [
+                      CatCard(
+                        key: ValueKey(bottom.key.id),
+                        controller: bottom.value,
+                        cat: bottom.key,
                       ),
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(24),
-                          bottomLeft: Radius.circular(24),
-                          topRight: Radius.circular(6),
-                          bottomRight: Radius.circular(6),
-                        ),
-                        color: Color(0xFF0F141E),
+                      CatCard(
+                        key: ValueKey(top.key.id),
+                        controller: top.value,
+                        cat: top.key,
                       ),
-                      child: const Text(
-                        'Nope',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          catsAndControllers.values.last.swipeLeft();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(24),
+                              bottomLeft: Radius.circular(24),
+                              topRight: Radius.circular(6),
+                              bottomRight: Radius.circular(6),
+                            ),
+                            color: Color(0xFF0F141E),
+                          ),
+                          child: const Text(
+                            'Nope',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      catsAndControllers.values.last.swipeRight();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(6),
-                          bottomLeft: Radius.circular(6),
-                          topRight: Radius.circular(24),
-                          bottomRight: Radius.circular(24),
-                        ),
-                        color: Color(0xFF42C0C6),
-                      ),
-                      child: const Text(
-                        'Like',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          catsAndControllers.values.last.swipeRight();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(6),
+                              bottomLeft: Radius.circular(6),
+                              topRight: Radius.circular(24),
+                              bottomRight: Radius.circular(24),
+                            ),
+                            color: Color(0xFF42C0C6),
+                          ),
+                          child: const Text(
+                            'Like',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  ],
+                )
               ],
-            )
-          ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -208,173 +236,192 @@ class _CatCardState extends State<CatCard> {
   double leftTextOpacity = 0;
   double rightTextOpacity = 0;
 
-  void resetTextOpacity() {
+  @override
+  void initState() {
+    widget.controller.addListener(updateOpacity);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(updateOpacity);
+    super.dispose();
+  }
+
+  void updateOpacity() {
+    final angle = widget.controller.value.angle;
     setState(() {
-      leftTextOpacity = 0;
-      rightTextOpacity = 0;
+      leftTextOpacity = clampDouble(-angle, 0, 1);
+      rightTextOpacity = clampDouble(angle, 0, 1);
     });
   }
 
   void remove(Cat matchData) {
-    setState(() {
-      catsAndControllers.remove(matchData);
-    });
+    catProvider.removeCat(matchData);
   }
 
   @override
   Widget build(BuildContext context) {
-    return MmSwipeable(
-      controller: widget.controller,
-      confirmSwipe: (angle, velocity) {
-        setState(() {
-          leftTextOpacity = clampDouble(-angle, 0, 1);
-          rightTextOpacity = clampDouble(angle, 0, 1);
-        });
-        final aangle = angle.abs();
-        final avelocity = velocity.abs();
-        return aangle > 0.7 || avelocity > 0.7;
-      },
-      onSwipedRight: () {
-        remove(widget.cat);
-        // Do anything you want here
-      },
-      onSwipedLeft: () {
-        remove(widget.cat);
-        // Do anything you want here
-      },
-      onSwipeLeftCancelled: () {
-        resetTextOpacity();
-        // Do anything you want here
-      },
-      onSwipeRightCancelled: () {
-        resetTextOpacity();
-        // Do anything you want here
-      },
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * .8,
-              child: Image.network(
-                widget.cat.imageUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
+    return ListenableBuilder(
+      listenable: catProvider,
+      builder: (context, _) {
+        return MmSwipeable(
+          controller: widget.controller,
+          confirmSwipe: () {
+            final value = widget.controller.value;
+            final angle = value.angle;
+            final force = value.force;
+            final aangle = angle.abs();
+            final aforce = force.abs();
+            if (aangle <= 0.7 && aforce <= 0.3) {
+              return null;
+            }
+            return true;
+          },
+          onSwipedRight: () {
+            remove(widget.cat);
+            // Do anything you want here
+          },
+          onSwipedLeft: () {
+            remove(widget.cat);
+            // Do anything you want here
+          },
+          onSwipeLeftCancelled: () {
+            // Do anything you want here
+          },
+          onSwipeRightCancelled: () {
+            // Do anything you want here
+          },
+          child: Stack(
+            children: [
+              ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.8),
-                    Colors.transparent,
-                  ],
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * .8,
+                  child: Image.network(
+                    widget.cat.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 24,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Row(
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.8),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 24,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: SizedBox(
-                            height: 50,
-                            width: 50,
-                            child: Image.network(
-                              widget.cat.imageUrl,
-                              fit: BoxFit.cover,
+                        Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: SizedBox(
+                                height: 50,
+                                width: 50,
+                                child: Image.network(
+                                  widget.cat.imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Text(
+                              widget.cat.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(height: 8),
                         Text(
-                          widget.cat.name,
+                          widget.cat.about,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.cat.about,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12.0,
+                  horizontal: 24,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AnimatedOpacity(
+                      opacity: rightTextOpacity,
+                      duration: Duration.zero,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFF42C0C6),
+                        ),
+                        child: const Text(
+                          'Like',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    AnimatedOpacity(
+                      opacity: leftTextOpacity,
+                      duration: Duration.zero,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFF0F141E),
+                        ),
+                        child: const Text(
+                          'Nope',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AnimatedOpacity(
-                  opacity: rightTextOpacity,
-                  duration: Duration.zero,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: const Color(0xFF42C0C6),
-                    ),
-                    child: const Text(
-                      'Like',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                AnimatedOpacity(
-                  opacity: leftTextOpacity,
-                  duration: Duration.zero,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: const Color(0xFF0F141E),
-                    ),
-                    child: const Text(
-                      'Nope',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

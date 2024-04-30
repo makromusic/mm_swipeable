@@ -1,7 +1,5 @@
 # MmSwipeable
 
-# Image from assets
-
 ![Screenshot](assets/screenshot.jpg)
 
 MmSwipeable is a Flutter package that provides a widget for enabling swipe actions in both left and right directions.
@@ -33,8 +31,8 @@ Wrap the widget that you want to make swipeable with the `MmSwipeable` widget an
 
 ```dart
 MmSwipeable(
-  confirmSwipe: (angle, velocity) {
-    return angle.abs() > 0.7 || velocity.abs() > 0.7;
+  confirmSwipe: (angle, force) {
+    return angle.abs() > 0.5 || force.abs() > 0.5;
   },
   onSwipedLeft: () {
     print('Swiped Left');
@@ -53,12 +51,15 @@ MmSwipeable(
 You can also use a `MmSwipeableController` to programmatically control the behavior of the swipeable widget:
 
 ```dart
+// Create a controller
 final swipeController = MmSwipeableController();
+...
 
+// Use the controller with the MmSwipeable widget
 MmSwipeable(
   controller: swipeController,
-  confirmSwipe: (angle, velocity) {
-    return angle.abs() > 0.7 || velocity.abs() > 0.7;
+  confirmSwipe: (angle, force) {
+    return angle.abs() > 0.5 || force.abs() > 0.5;
   },
   onSwipedLeft: () {
     print('Swiped Left');
@@ -72,15 +73,19 @@ MmSwipeable(
     color: Colors.blue,
   ),
 )
-```
 
-```dart
-// Programmatically trigger a swipe action
+...
+
+// Programmatically trigger a swipe right action
 swipeController.swipeRight();
+
+// Programmatically trigger a swipe left action
+swipeController.swipeLeft();
+
 ```
 
 For more details and examples, check out the [example](example) directory.
 
+## License
 
-
-
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
