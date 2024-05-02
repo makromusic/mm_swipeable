@@ -27,9 +27,6 @@ part of mm_swipeable;
 ///
 /// MmSwipeable(
 ///   controller: swipeableController,
-///   swipeAnimationDuration: const Duration(milliseconds: 2000),
-///   resetAnimationDuration: const Duration(milliseconds: 1000),
-///   actionOffsetDuration: const Duration(milliseconds: 200),
 ///   confirmSwipe: () {
 ///     // Read the current angle and force values from the controller.
 ///     final angle = swipeableController.value.angle.abs();
@@ -171,9 +168,6 @@ class MmSwipeable extends StatefulWidget {
 }
 
 class _MmSwipeableState extends State<MmSwipeable> {
-  static const _swipeDuration = Duration(milliseconds: 2000);
-  static const _resetDuration = Duration(milliseconds: 1000);
-  static const _offsetDuration = Duration(milliseconds: 200);
   static const _rotationScalar = 10;
   static const _forceScalar = 1 / 10;
 
@@ -222,7 +216,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
       setState(() {
         xposition = 0;
         _updateController(0, 0);
-        animDuration = _resetDuration;
+        animDuration = widget.resetAnimationDuration;
       });
     }
 
@@ -236,11 +230,11 @@ class _MmSwipeableState extends State<MmSwipeable> {
       return;
     }
     setState(() {
-      animDuration = _swipeDuration;
+      animDuration = widget.swipeAnimationDuration;
       xposition = screenWidth * (swipedRight ? 1 : -1);
     });
 
-    Future.delayed(_offsetDuration, () {
+    Future.delayed(widget.actionOffsetDuration, () {
       if (!mounted) return;
       reset();
 

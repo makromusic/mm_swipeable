@@ -267,6 +267,9 @@ class _CatCardState extends State<CatCard> {
       builder: (context, _) {
         return MmSwipeable(
           controller: widget.controller,
+          actionOffsetDuration: const Duration(milliseconds: 250),
+          swipeAnimationDuration: const Duration(milliseconds: 2000),
+          resetAnimationDuration: const Duration(milliseconds: 1200),
           confirmSwipe: () {
             final value = widget.controller.value;
             final angle = value.angle;
