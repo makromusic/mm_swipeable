@@ -1,0 +1,15 @@
+name: mm_swipeable
+description: MmSwipeable is a Flutter package that provides a widget for enabling swipe actions in both left and right directions.
+version: 1.0.0+1
+repository: https://github.com/makromusic/mm_swipeable
+
+environment:
+  sdk: '>=2.18.2 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
