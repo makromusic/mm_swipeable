@@ -174,6 +174,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
   Duration animDuration = Duration.zero;
   double xposition = 0;
   double screenWidth = 0;
+  bool _isAnimating = false;
 
   @override
   void initState() {
@@ -211,19 +212,28 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
   void _swipe() {
     if (!mounted) return;
+    if (_isAnimating) return;
 
     void reset() {
       setState(() {
         xposition = 0;
         _updateController(0, 0);
         animDuration = widget.resetAnimationDuration;
+        _isAnimating = false;
       });
     }
+
+    _isAnimating = true;
 
     final confirm = widget.confirmSwipe();
     final angle = widget.controller.value.angle;
     final swipedRight = angle > 0;
     final swipedLeft = angle < 0;
+
+    // angle=0 means direction is indeterminate — treat as cancelled
+    if (!swipedRight && !swipedLeft) {
+      return reset();
+    }
 
     if (confirm == null) {
       return reset();
@@ -235,7 +245,10 @@ class _MmSwipeableState extends State<MmSwipeable> {
     });
 
     Future.delayed(widget.actionOffsetDuration, () {
-      if (!mounted) return;
+      if (!mounted) {
+        _isAnimating = false;
+        return;
+      }
       if (confirm) {
         if (swipedRight) {
           widget.onSwipedRight();
@@ -243,7 +256,6 @@ class _MmSwipeableState extends State<MmSwipeable> {
           widget.onSwipedLeft();
         }
       } else {
-        // Only reset if the confirmation is false.
         reset();
         if (swipedRight) {
           widget.onSwipeRightCancelled?.call();
@@ -251,6 +263,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
           widget.onSwipeLeftCancelled?.call();
         }
       }
+      _isAnimating = false;
     });
   }
 
@@ -261,7 +274,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
 
     return GestureDetector(
       onPanUpdate: (details) {
-        if (!mounted) return;
+        if (!mounted || _isAnimating) return;
         setState(() {
           animDuration = Duration.zero;
           xposition += details.delta.dx;
@@ -269,7 +282,7 @@ class _MmSwipeableState extends State<MmSwipeable> {
         });
       },
       onPanEnd: (details) {
-        if (!mounted) return;
+        if (!mounted || _isAnimating) return;
         final velx = details.velocity.pixelsPerSecond.dx;
         final force = (velx / width) * _forceScalar;
         final angle = _getAngle();
