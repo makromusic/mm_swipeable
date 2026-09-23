@@ -191,6 +191,21 @@ class _MmSwipeableState extends State<MmSwipeable> {
     super.initState();
   }
 
+  @override
+  void didUpdateWidget(covariant MmSwipeable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller._unbind(this);
+      widget.controller._bind(this);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller._unbind(this);
+    super.dispose();
+  }
+
   double _getRotation() {
     if (screenWidth == 0) return 0;
     return xposition / (screenWidth * (pi * 1.5));

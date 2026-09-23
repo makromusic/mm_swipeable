@@ -64,19 +64,22 @@ class MmSwipeableController extends ValueNotifier<MmSwipeableSwipeDetails> {
     _swipeableState = state;
   }
 
+  void _unbind(_MmSwipeableState state) {
+    if (_swipeableState == state) _swipeableState = null;
+  }
+
   /// Swipes the widget to the left programmatically with a swipe animation.
   ///
   /// This method confirms the swipe action by updating the value of the controller
   /// with a swipe detail indicating a left swipe, and then triggers the swipe animation
   /// in the corresponding [MmSwipeable] widget's state.
+  ///
+  /// Does nothing while no [MmSwipeable] is bound, e.g. after it was disposed.
   void swipeLeft() {
-    assert(
-      _swipeableState != null,
-      'MmSwipeableController.swipeLeft(): Make sure to bind this controller to a MmSwipeable widget '
-      'before using it.',
-    );
+    final state = _swipeableState;
+    if (state == null) return;
     value = const MmSwipeableSwipeDetails(angle: -1.0, force: 0);
-    return _swipeableState!._swipe();
+    return state._swipe();
   }
 
   /// Swipes the widget to the right programmatically with a swipe animation.
@@ -84,13 +87,12 @@ class MmSwipeableController extends ValueNotifier<MmSwipeableSwipeDetails> {
   /// This method confirms the swipe action by updating the value of the controller
   /// with a swipe detail indicating a right swipe, and then triggers the swipe animation
   /// in the corresponding [MmSwipeable] widget's state.
+  ///
+  /// Does nothing while no [MmSwipeable] is bound, e.g. after it was disposed.
   void swipeRight() {
-    assert(
-      _swipeableState != null,
-      'MmSwipeableController.swipeRight(): Make sure to bind this controller to a MmSwipeable widget '
-      'before using it.',
-    );
+    final state = _swipeableState;
+    if (state == null) return;
     value = const MmSwipeableSwipeDetails(angle: 1.0, force: 0);
-    return _swipeableState!._swipe();
+    return state._swipe();
   }
 }
