@@ -76,7 +76,8 @@ Future<Duration> moveInSteps(
 /// Drags [distance] in 10px moves 100ms apart and releases after a pause,
 /// so the release velocity is zero.
 Future<void> dragSlowly(WidgetTester tester, double distance) async {
-  final gesture = await tester.startGesture(tester.getCenter(find.byKey(cardKey)));
+  final gesture =
+      await tester.startGesture(tester.getCenter(find.byKey(cardKey)));
   final lastMove = await moveInSteps(
     gesture,
     dx: distance,
@@ -118,8 +119,7 @@ void main() {
       expect(recorder.total, 1);
     });
 
-    testWidgets('a quick short flick to the left commits left',
-        (tester) async {
+    testWidgets('a quick short flick to the left commits left', (tester) async {
       await tester.pumpWidget(
         buildCard(controller: controller, recorder: recorder),
       );
@@ -231,8 +231,7 @@ void main() {
       expect(scrollController.offset, 0);
     });
 
-    testWidgets('a 60 degree flick scrolls instead of swiping',
-        (tester) async {
+    testWidgets('a 60 degree flick scrolls instead of swiping', (tester) async {
       await tester.pumpWidget(scrollableCard());
 
       await tester.flingFrom(
@@ -248,7 +247,8 @@ void main() {
   });
 
   group('confirmSwipe', () {
-    testWidgets('false on a right flick calls only the right cancelled callback',
+    testWidgets(
+        'false on a right flick calls only the right cancelled callback',
         (tester) async {
       await tester.pumpWidget(
         buildCard(
