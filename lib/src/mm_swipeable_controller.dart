@@ -1,65 +1,60 @@
 part of '../mm_swipeable.dart';
 
-/// Data class representing the details of a swipe action.
-///
-/// The [MmSwipeableSwipeDetails] class encapsulates information about a swipe action,
-/// including the angle and force of the swipe. Instances of this class are immutable
-/// and can be used to pass swipe details between components.
+/// The state of a swipe, published by [MmSwipeableController] while the card
+/// moves.
 class MmSwipeableSwipeDetails {
-  /// Constructs a [MmSwipeableSwipeDetails] instance with the given angle and force.
-  ///
-  /// The [angle] parameter represents the angle of the swipe action, normalized
-  /// between -1 and 1, where -1 indicates swiping left and 1 indicates swiping right.
-  ///
-  /// The [force] parameter represents the force of the swipe action, normalized
-  /// between -1 and 1, where -1 indicates a weak swipe and 1 indicates a strong swipe.
+  /// Constructs a [MmSwipeableSwipeDetails] with the given values.
   const MmSwipeableSwipeDetails({
     required this.angle,
     required this.force,
+    this.progress = 0,
   });
 
-  /// Constructs a [MmSwipeableSwipeDetails] instance with zero angle and force.
+  /// Constructs a [MmSwipeableSwipeDetails] for a card at rest.
   factory MmSwipeableSwipeDetails.zero() {
-    return const MmSwipeableSwipeDetails(
-      angle: 0,
-      force: 0,
-    );
+    return const MmSwipeableSwipeDetails(angle: 0, force: 0);
   }
 
-  /// The angle of the swipe action, normalized between -1 and 1.
+  /// The card's tilt from its horizontal offset, normalized between -1 and 1.
   ///
-  /// -1 indicates swiping left, 0 indicates no horizontal movement,
-  /// and 1 indicates swiping right.
+  /// -1 is tilted to the left, 1 to the right.
   final double angle;
 
-  /// The force of the swipe action, normalized between -1 and 1.
+  /// The horizontal release velocity, normalized between -1 and 1.
   ///
-  /// -1 indicates a weak swipe, 0 indicates no force,
-  /// and 1 indicates a strong swipe.
+  /// Zero while dragging; set when the finger is released.
   final double force;
 
-  /// Indicates whether the swipe action is towards the left direction.
-  bool get swipingLeft => angle < 0;
+  /// How far the card is towards the commit threshold, between -1 and 1.
+  ///
+  /// While dragging it is the card's offset divided by
+  /// `swipeThreshold * width`, so it only grows as the card moves further; a
+  /// slow release at -1 or 1 commits. A quick flick can commit earlier: then
+  /// it jumps to -1 or 1 on release and stays there while the card flies out.
+  /// While the card springs back it follows the card's offset to 0.
+  final double progress;
 
-  /// Indicates whether the swipe action is towards the right direction.
-  bool get swipingRight => angle > 0;
+  /// Whether the swipe is heading left.
+  ///
+  /// Reads [progress], or [angle] when [progress] is 0.
+  bool get swipingLeft => (progress != 0 ? progress : angle) < 0;
+
+  /// Whether the swipe is heading right.
+  ///
+  /// Reads [progress], or [angle] when [progress] is 0.
+  bool get swipingRight => (progress != 0 ? progress : angle) > 0;
 }
 
-/// Controller for managing the swipe action of the [MmSwipeable] widget.
+/// Controller for managing the swipe action of an [MmSwipeable] widget.
 ///
-/// The [MmSwipeableController] class provides functionality to interact with and control
-/// the behavior of the swipeable widget programmatically. Developers can use an instance
-/// of this class to trigger swipe actions and dispose of the controller when it's no longer needed.
+/// Listen to it to follow [MmSwipeableSwipeDetails] while the card moves, and
+/// call [swipeLeft] / [swipeRight] to swipe the card programmatically.
 class MmSwipeableController extends ValueNotifier<MmSwipeableSwipeDetails> {
   _MmSwipeableState? _swipeableState;
 
-  /// Constructs a [MmSwipeableController] instance with initial swipe details set to zero.
+  /// Constructs a [MmSwipeableController] for a card at rest.
   MmSwipeableController() : super(MmSwipeableSwipeDetails.zero());
 
-  /// Binds the controller to the given [_MmSwipeableState] instance.
-  ///
-  /// This method should be called to establish a connection between the controller
-  /// and the corresponding [MmSwipeable] widget's state.
   void _bind(_MmSwipeableState state) {
     _swipeableState = state;
   }
@@ -68,31 +63,23 @@ class MmSwipeableController extends ValueNotifier<MmSwipeableSwipeDetails> {
     if (_swipeableState == state) _swipeableState = null;
   }
 
-  /// Swipes the widget to the left programmatically with a swipe animation.
+  /// Swipes the card to the left.
   ///
-  /// This method confirms the swipe action by updating the value of the controller
-  /// with a swipe detail indicating a left swipe, and then triggers the swipe animation
-  /// in the corresponding [MmSwipeable] widget's state.
+  /// Asks [MmSwipeable.confirmSwipe] first: `true` flies the card out and
+  /// calls [MmSwipeable.onSwipedLeft], `false` nudges it back and calls
+  /// [MmSwipeable.onSwipeLeftCancelled], `null` nudges it back silently.
   ///
-  /// Does nothing while no [MmSwipeable] is bound, e.g. after it was disposed.
-  void swipeLeft() {
-    final state = _swipeableState;
-    if (state == null) return;
-    value = const MmSwipeableSwipeDetails(angle: -1.0, force: 0);
-    return state._swipe();
-  }
+  /// Does nothing while no [MmSwipeable] is bound, e.g. after it was disposed,
+  /// or while the card is being dragged or is already flying out.
+  void swipeLeft() => _swipeableState?._swipeProgrammatically(-1);
 
-  /// Swipes the widget to the right programmatically with a swipe animation.
+  /// Swipes the card to the right.
   ///
-  /// This method confirms the swipe action by updating the value of the controller
-  /// with a swipe detail indicating a right swipe, and then triggers the swipe animation
-  /// in the corresponding [MmSwipeable] widget's state.
+  /// Asks [MmSwipeable.confirmSwipe] first: `true` flies the card out and
+  /// calls [MmSwipeable.onSwipedRight], `false` nudges it back and calls
+  /// [MmSwipeable.onSwipeRightCancelled], `null` nudges it back silently.
   ///
-  /// Does nothing while no [MmSwipeable] is bound, e.g. after it was disposed.
-  void swipeRight() {
-    final state = _swipeableState;
-    if (state == null) return;
-    value = const MmSwipeableSwipeDetails(angle: 1.0, force: 0);
-    return state._swipe();
-  }
+  /// Does nothing while no [MmSwipeable] is bound, e.g. after it was disposed,
+  /// or while the card is being dragged or is already flying out.
+  void swipeRight() => _swipeableState?._swipeProgrammatically(1);
 }

@@ -1,24 +1,25 @@
 part of '../mm_swipeable.dart';
 
-/// {@template mm_swipeable}
-/// A widget that enables swipe actions in both left and right directions.
+/// A widget that can be swiped to the left or right.
 ///
-/// This widget allows users to swipe a child widget either to the left or right.
-/// It does not automatically dismiss the child widget upon swipe; instead, it triggers
-/// callback functions to handle the swipe actions.
+/// It does not dismiss its child on a swipe; it calls [onSwipedLeft] or
+/// [onSwipedRight] once the child has left its bounds and leaves removing the
+/// child to the caller.
 ///
-/// The swipe action can be confirmed or cancelled based on a user-defined condition
-/// specified by the [confirmSwipe] callback. If the condition is met, the respective
-/// [onSwipedLeft] or [onSwipedRight] callback is triggered, indicating that the swipe
-/// action has been successfully confirmed. Otherwise, if the condition is not met,
-/// the corresponding [onSwipeLeftCancelled] or [onSwipeRightCancelled] callback is
-/// triggered to indicate that the swipe action has been cancelled.
+/// The swipe is decided on where the card is heading, not where it is: the
+/// release point is projected forward by the finger's velocity
+/// (`offset + velocity * projectionTime`), and the swipe commits when that
+/// projected point passes `swipeThreshold * width`. A short, quick flick and a
+/// long, slow drag therefore both commit, and the direction always follows the
+/// motion.
 ///
-/// Developers can provide a custom [MmSwipeableController] via the [controller] parameter
-/// to interact with and control the behavior of the swipeable widget programmatically.
-/// {@endtemplate}
+/// Only horizontal drags are claimed, so a vertical scrollable inside the card
+/// keeps its gestures: whichever axis the finger moves along first wins.
 ///
-/// {@template mm_swipeable_example}
+/// When the projection passes the threshold, [confirmSwipe] decides the outcome:
+/// `true` commits and calls [onSwipedLeft] / [onSwipedRight] once the card has
+/// left its bounds, `false` springs back and calls the matching cancelled
+/// callback, and `null` springs back silently.
 ///
 /// Example usage:
 ///
@@ -27,20 +28,7 @@ part of '../mm_swipeable.dart';
 ///
 /// MmSwipeable(
 ///   controller: swipeableController,
-///   confirmSwipe: () {
-///     // Read the current angle and force values from the controller.
-///     final angle = swipeableController.value.angle.abs();
-///     final force = swipeableController.value.force.abs();///
-///     // Check if the swipe action meets certain conditions.
-///     if (angle <= 0.5 && force <= 0.5) {
-///       // Swipe action is not strong enough to trigger
-///       // the callbacks. Just return `null` to ignore this action.
-///       return null;
-///     } else {
-///       // Swipe action meets the conditions to be confirmed or cancelled.
-///       // Perform further checks or logic here...
-///     }
-///   },
+///   confirmSwipe: () => canSwipe ? true : false,
 ///   onSwipedLeft: () {
 ///     // Handle swipe left action.
 ///   },
@@ -58,95 +46,47 @@ part of '../mm_swipeable.dart';
 ///     color: Colors.blue,
 ///   ),
 /// )
-///```
-/// {@endtemplate}
+/// ```
 class MmSwipeable extends StatefulWidget {
-  /// A callback function that determines the outcome of the swipe action.
+  /// Decides the outcome of a swipe whose projection passed the threshold.
   ///
-  /// The [confirmSwipe] method is called when the swipe action is ended and returns
-  /// a nullable boolean (`bool?`) value to indicate whether the swipe action should be
-  /// confirmed, cancelled, or no action should be taken.
+  /// Returns `true` to commit, `false` to spring back and call
+  /// [onSwipeLeftCancelled] / [onSwipeRightCancelled], and `null` to spring
+  /// back without any callback. It is also called by
+  /// [MmSwipeableController.swipeLeft] and [MmSwipeableController.swipeRight].
   ///
-  /// If the method returns `true`, indicating that the swipe action should be confirmed,
-  /// the [onSwipedLeft] or [onSwipedRight] callback will be triggered, depending on the
-  /// direction of the swipe.
-  ///
-  /// If the method returns `false`, indicating that the swipe action should be cancelled,
-  /// the [onSwipeLeftCancelled] or [onSwipeRightCancelled] callback will be triggered, and
-  /// the widget will animate back to its original position and rotation.
-  ///
-  /// If the method returns `null`, no callback will be triggered, and the widget will
-  /// animate back to its original position and rotation without any further action.
-  ///
-  /// If developers need to access the angle and force values of the swipe action
-  /// in the `confirmSwipe` method, they can retrieve them from the controller
-  /// after the swipe action ends. The controller provides the real-time values
-  /// of the angle and force as soon as the swipe ends.
-  ///
-  /// {@macro mm_swipeable_example}
+  /// The controller's value already holds the release details when it is
+  /// called, so `controller.value.swipingRight` tells the direction.
   final bool? Function() confirmSwipe;
 
-  /// Called when the widget is swiped to the left and the swipe action is confirmed.
-  /// This callback is triggered only if the [confirmSwipe] method returns `true`.
-  ///
-  /// {@macro mm_swipeable_example}
+  /// Called once a committed left swipe has carried the card out of its bounds.
   final VoidCallback onSwipedLeft;
 
-  /// Called when the widget is swiped to the right and the swipe action is confirmed.
-  /// This callback is triggered only if the [confirmSwipe] method returns `true`.
-  ///
-  /// {@macro mm_swipeable_example}
+  /// Called once a committed right swipe has carried the card out of its bounds.
   final VoidCallback onSwipedRight;
 
-  /// Called when the widget is swiped to the right and the swipe action is cancelled.
-  /// This callback is triggered when the swipe action is cancelled after swiping to the right,
-  /// and the [confirmSwipe] method returns `false`.
-  ///
-  /// {@macro mm_swipeable_example}
+  /// Called when [confirmSwipe] returns `false` for a right swipe.
   final VoidCallback? onSwipeRightCancelled;
 
-  /// Called when the widget is swiped to the left and the swipe action is cancelled.
-  /// This callback is triggered when the swipe action is cancelled after swiping to the left,
-  /// and the [confirmSwipe] method returns `false`.
-  ///
-  /// {@macro mm_swipeable_example}
+  /// Called when [confirmSwipe] returns `false` for a left swipe.
   final VoidCallback? onSwipeLeftCancelled;
 
-  /// Controller for handling the swipe action of the widget.
-  ///
-  /// The [controller] parameter allows developers to provide a custom [MmSwipeableController]
-  /// to interact with and control the behavior of the swipeable widget programmatically.
-  /// By using a controller, developers can programmatically trigger swipe actions, retrieve
-  /// real-time values of the angle and force of the swipe action, and listen to changes
-  /// in the swipeable widget's state.
-  ///
-  /// {@macro mm_swipeable_example}
+  /// Publishes the swipe details while the card moves and triggers
+  /// programmatic swipes.
   final MmSwipeableController controller;
 
-  /// The child widget to be swiped.
+  /// The widget to be swiped.
   final Widget child;
 
-  /// The duration of the swipe animation.
-  ///
-  /// The [swipeAnimationDuration] parameter specifies the duration of the swipe animation
-  /// when the widget is swiped to the left or right. The default value is 2000 milliseconds.
-  final Duration swipeAnimationDuration;
+  /// Fraction of the card's width the projected point must travel to commit.
+  final double swipeThreshold;
 
-  /// The duration of the reset animation.
-  ///
-  /// The [resetAnimationDuration] parameter specifies the duration of the reset animation
-  /// when the widget is animated back to its original position and rotation. The default
-  /// value is 1000 milliseconds.
-  final Duration resetAnimationDuration;
+  /// How far ahead, in time, the release velocity is projected.
+  final Duration projectionTime;
 
-  /// The duration of the offset animation.
-  ///
-  /// The [actionOffsetDuration] parameter specifies the duration of the offset
-  /// before triggering the swipe callbacks. The default value is 200 milliseconds.
-  final Duration actionOffsetDuration;
+  /// Plays a selection click when a drag reaches the commit threshold.
+  final bool enableHaptics;
 
-  /// {@macro mm_swipeable}
-  /// {@macro mm_swipeable_example}
   const MmSwipeable({
     required this.confirmSwipe,
     required this.onSwipedLeft,
@@ -155,40 +95,55 @@ class MmSwipeable extends StatefulWidget {
     required this.child,
     this.onSwipeRightCancelled,
     this.onSwipeLeftCancelled,
-    this.swipeAnimationDuration = const Duration(milliseconds: 2000),
-    this.resetAnimationDuration = const Duration(milliseconds: 1000),
-    this.actionOffsetDuration = const Duration(milliseconds: 200),
+    this.swipeThreshold = 0.35,
+    this.projectionTime = const Duration(milliseconds: 200),
+    this.enableHaptics = true,
     super.key,
   });
 
   @override
-  State<MmSwipeable> createState() {
-    return _MmSwipeableState();
-  }
+  State<MmSwipeable> createState() => _MmSwipeableState();
 }
 
-class _MmSwipeableState extends State<MmSwipeable> {
-  static const _rotationScalar = 10;
-  static const _forceScalar = 1 / 10;
+class _MmSwipeableState extends State<MmSwipeable>
+    with SingleTickerProviderStateMixin {
+  static const _maxRotation = 0.21;
+  static const _angleScalar = 2.12;
+  static const _forceScalar = 0.1;
+  static const _minExitSpeed = 1.5;
+  static const _exitDistance = 1.6;
+  static const _rearmBelow = 0.85;
 
-  Duration animDuration = Duration.zero;
-  double xposition = 0;
-  double screenWidth = 0;
-  bool _isAnimating = false;
+  static final _returnSpring = SpringDescription.withDampingRatio(
+    mass: 1,
+    stiffness: 320,
+    ratio: 0.72,
+  );
+  static final _exitSpring = SpringDescription.withDampingRatio(
+    mass: 1,
+    stiffness: 180,
+    ratio: 1,
+  );
+
+  late final AnimationController _x = AnimationController.unbounded(vsync: this)
+    ..addListener(_onPositionChanged);
+
+  double _width = 0;
+  double _grabSign = 1;
+  bool _dragging = false;
+  bool _pastThreshold = false;
+  double? _exitDirection;
+  bool _exitNotified = false;
+
+  double get _thresholdDistance => widget.swipeThreshold * _width;
+
+  double get _projectionSeconds =>
+      widget.projectionTime.inMicroseconds / Duration.microsecondsPerSecond;
 
   @override
   void initState() {
-    widget.controller._bind(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final size = context.size;
-      if (size != null) {
-        setState(() {
-          screenWidth = size.width;
-        });
-      }
-    });
     super.initState();
+    widget.controller._bind(this);
   }
 
   @override
@@ -203,121 +158,166 @@ class _MmSwipeableState extends State<MmSwipeable> {
   @override
   void dispose() {
     widget.controller._unbind(this);
+    _x.dispose();
     super.dispose();
   }
 
-  double _getRotation() {
-    if (screenWidth == 0) return 0;
-    return xposition / (screenWidth * (pi * 1.5));
+  double _progressFor(double velocity) {
+    if (_width == 0) return 0;
+    final projected = _x.value + velocity * _projectionSeconds;
+    return clampDouble(projected / _thresholdDistance, -1, 1);
   }
 
-  double _getAngle() {
-    final rotation = _getRotation();
-    return rotation * _rotationScalar;
-  }
-
-  void _updateController(double angle, double force) {
-    final nAngle = clampDouble(angle, -1, 1);
-    final nForce = clampDouble(force, -1, 1);
+  void _publish({required double progress, double velocity = 0}) {
+    if (_width == 0) return;
     widget.controller.value = MmSwipeableSwipeDetails(
-      angle: nAngle,
-      force: nForce,
+      angle: clampDouble(_x.value / _width * _angleScalar, -1, 1),
+      force: clampDouble(velocity / _width * _forceScalar, -1, 1),
+      progress: progress,
     );
   }
 
-  void _swipe() {
-    if (!mounted) return;
-    if (_isAnimating) return;
-
-    void reset() {
-      setState(() {
-        xposition = 0;
-        _updateController(0, 0);
-        animDuration = widget.resetAnimationDuration;
-        _isAnimating = false;
-      });
+  void _onPositionChanged() {
+    if (!_dragging) _publish(progress: _exitDirection ?? _progressFor(0));
+    final direction = _exitDirection;
+    if (direction == null || _exitNotified) return;
+    if (_x.value.abs() < _width) return;
+    _exitNotified = true;
+    if (direction > 0) {
+      widget.onSwipedRight();
+    } else {
+      widget.onSwipedLeft();
     }
+  }
 
-    _isAnimating = true;
+  void _onDragStart(DragStartDetails details) {
+    if (_exitDirection != null) return;
+    _x.stop();
+    _dragging = true;
+    _pastThreshold = false;
+    final height = (context.findRenderObject() as RenderBox?)?.size.height ?? 0;
+    _grabSign = details.localPosition.dy < height / 2 ? 1 : -1;
+  }
 
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (!_dragging) return;
+    _x.value += details.delta.dx;
+
+    final progress = _progressFor(0);
+    if (!_pastThreshold && progress.abs() >= 1) {
+      _pastThreshold = true;
+      if (widget.enableHaptics) HapticFeedback.selectionClick();
+    } else if (_pastThreshold && progress.abs() < _rearmBelow) {
+      _pastThreshold = false;
+    }
+    _publish(progress: progress);
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    if (!_dragging) return;
+    _dragging = false;
+    _release(details.velocity.pixelsPerSecond.dx);
+  }
+
+  void _onDragCancel() {
+    if (!_dragging) return;
+    _dragging = false;
+    _release(0);
+  }
+
+  void _release(double velocity) {
+    final predicted = _progressFor(velocity);
+    if (predicted.abs() < 1) {
+      _publish(progress: _progressFor(0), velocity: velocity);
+      return _springBack(velocity);
+    }
+    _publish(progress: predicted, velocity: velocity);
+
+    final direction = predicted.sign;
     final confirm = widget.confirmSwipe();
-    final angle = widget.controller.value.angle;
-    final swipedRight = angle > 0;
-    final swipedLeft = angle < 0;
-
-    // angle=0 means direction is indeterminate — treat as cancelled
-    if (!swipedRight && !swipedLeft) {
-      return reset();
+    if (!mounted) return;
+    if (confirm == true) return _flyOut(direction, velocity);
+    _springBack(velocity);
+    if (confirm == null) return;
+    if (direction > 0) {
+      widget.onSwipeRightCancelled?.call();
+    } else {
+      widget.onSwipeLeftCancelled?.call();
     }
+  }
 
-    if (confirm == null) {
-      return reset();
+  void _springBack(double velocity) {
+    _x.animateWith(SpringSimulation(_returnSpring, _x.value, 0, velocity));
+  }
+
+  void _flyOut(double direction, double velocity) {
+    _exitDirection = direction;
+    final speed = max(velocity * direction, _minExitSpeed * _width);
+    _x.animateWith(
+      SpringSimulation(
+        _exitSpring,
+        _x.value,
+        direction * _exitDistance * _width,
+        direction * speed,
+      ),
+    );
+  }
+
+  void _swipeProgrammatically(double direction) {
+    if (!mounted || _dragging || _exitDirection != null || _width == 0) return;
+    widget.controller.value = MmSwipeableSwipeDetails(
+      angle: direction,
+      force: 0,
+      progress: direction,
+    );
+    final confirm = widget.confirmSwipe();
+    if (!mounted) return;
+    _grabSign = 1;
+    if (confirm == true) return _flyOut(direction, 0);
+    _springBack(direction * _minExitSpeed * _width);
+    if (confirm == null) return;
+    if (direction > 0) {
+      widget.onSwipeRightCancelled?.call();
+    } else {
+      widget.onSwipeLeftCancelled?.call();
     }
-
-    setState(() {
-      animDuration = widget.swipeAnimationDuration;
-      xposition = screenWidth * (swipedRight ? 1 : -1);
-    });
-
-    Future.delayed(widget.actionOffsetDuration, () {
-      if (!mounted) {
-        _isAnimating = false;
-        return;
-      }
-      if (confirm) {
-        if (swipedRight) {
-          widget.onSwipedRight();
-        } else if (swipedLeft) {
-          widget.onSwipedLeft();
-        }
-      } else {
-        reset();
-        if (swipedRight) {
-          widget.onSwipeRightCancelled?.call();
-        } else if (swipedLeft) {
-          widget.onSwipeLeftCancelled?.call();
-        }
-      }
-      _isAnimating = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final childWidget = widget.child;
-    final width = screenWidth;
-
-    return GestureDetector(
-      onPanUpdate: (details) {
-        if (!mounted || _isAnimating) return;
-        setState(() {
-          animDuration = Duration.zero;
-          xposition += details.delta.dx;
-          _updateController(_getAngle(), 0);
-        });
-      },
-      onPanEnd: (details) {
-        if (!mounted || _isAnimating) return;
-        final velx = details.velocity.pixelsPerSecond.dx;
-        final force = (velx / width) * _forceScalar;
-        final angle = _getAngle();
-        _updateController(angle, force);
-        _swipe();
-      },
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          AnimatedContainer(
-            duration: animDuration,
-            curve: Curves.elasticOut,
-            transform: Matrix4.identity()
-              ..translate(xposition, 0)
-              ..rotateZ(_getRotation()),
-            transformAlignment: Alignment.center,
-            child: childWidget,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _width = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+        return GestureDetector(
+          dragStartBehavior: DragStartBehavior.down,
+          onHorizontalDragStart: _onDragStart,
+          onHorizontalDragUpdate: _onDragUpdate,
+          onHorizontalDragEnd: _onDragEnd,
+          onHorizontalDragCancel: _onDragCancel,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _x,
+                builder: (context, child) {
+                  final rotation = _width == 0
+                      ? 0.0
+                      : _x.value / _width * _maxRotation * _grabSign;
+                  return Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.translationValues(_x.value, 0, 0)
+                      ..rotateZ(rotation),
+                    child: child,
+                  );
+                },
+                child: widget.child,
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
