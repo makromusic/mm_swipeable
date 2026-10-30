@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mm_swipeable/mm_swipeable.dart';
 
@@ -22,6 +23,7 @@ Widget buildCard({
   required MmSwipeableController controller,
   required SwipeRecorder recorder,
   bool? Function()? confirmSwipe,
+  bool enableHaptics = false,
   Widget? child,
 }) {
   return MaterialApp(
@@ -31,7 +33,7 @@ Widget buildCard({
         height: cardHeight,
         child: MmSwipeable(
           controller: controller,
-          enableHaptics: false,
+          enableHaptics: enableHaptics,
           confirmSwipe: confirmSwipe ?? () => true,
           onSwipedLeft: () => recorder.swipedLeft++,
           onSwipedRight: () => recorder.swipedRight++,
@@ -420,6 +422,96 @@ void main() {
           greaterThanOrEqualTo(progressAfterRelease[index - 1]),
         );
       }
+    });
+  });
+
+  group('haptics', () {
+    late List<String> haptics;
+
+    setUp(() {
+      haptics = [];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'HapticFeedback.vibrate') {
+          haptics.add(call.arguments as String);
+        }
+        return null;
+      });
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    testWidgets('a confirmed flick plays a light impact', (tester) async {
+      await tester.pumpWidget(
+        buildCard(
+          controller: controller,
+          recorder: recorder,
+          enableHaptics: true,
+        ),
+      );
+
+      await tester.flingFrom(
+        tester.getCenter(find.byKey(cardKey)),
+        const Offset(80, 0),
+        1500,
+      );
+      await pumpUntil(tester, () => recorder.total > 0);
+
+      expect(haptics, ['HapticFeedbackType.lightImpact']);
+    });
+
+    testWidgets('a cancelled flick plays no light impact', (tester) async {
+      await tester.pumpWidget(
+        buildCard(
+          controller: controller,
+          recorder: recorder,
+          confirmSwipe: () => false,
+          enableHaptics: true,
+        ),
+      );
+
+      await tester.flingFrom(
+        tester.getCenter(find.byKey(cardKey)),
+        const Offset(80, 0),
+        1500,
+      );
+      await pumpForTwoSeconds(tester);
+
+      expect(haptics, isEmpty);
+    });
+
+    testWidgets('a programmatic swipe plays no haptic', (tester) async {
+      await tester.pumpWidget(
+        buildCard(
+          controller: controller,
+          recorder: recorder,
+          enableHaptics: true,
+        ),
+      );
+
+      controller.swipeRight();
+      await pumpUntil(tester, () => recorder.total > 0);
+
+      expect(haptics, isEmpty);
+    });
+
+    testWidgets('disabled haptics play nothing on a confirmed flick',
+        (tester) async {
+      await tester.pumpWidget(
+        buildCard(controller: controller, recorder: recorder),
+      );
+
+      await tester.flingFrom(
+        tester.getCenter(find.byKey(cardKey)),
+        const Offset(80, 0),
+        1500,
+      );
+      await pumpUntil(tester, () => recorder.total > 0);
+
+      expect(haptics, isEmpty);
     });
   });
 }

@@ -1,3 +1,7 @@
+## 2.1.0
+
+- With `enableHaptics`, a released drag that `confirmSwipe` confirms now also plays a light impact. Programmatic swipes and cancelled swipes play none.
+
 ## 2.0.0
 
 - **Breaking:** removed `swipeAnimationDuration`, `resetAnimationDuration` and `actionOffsetDuration`. The card now moves with springs that keep the release velocity.

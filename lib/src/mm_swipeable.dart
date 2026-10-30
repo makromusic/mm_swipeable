@@ -84,7 +84,9 @@ class MmSwipeable extends StatefulWidget {
   /// How far ahead, in time, the release velocity is projected.
   final Duration projectionTime;
 
-  /// Plays a selection click when a drag reaches the commit threshold.
+  /// Plays a selection click when a drag reaches the commit threshold and a
+  /// light impact when a released drag is confirmed. Programmatic swipes from
+  /// [MmSwipeableController] play neither.
   final bool enableHaptics;
 
   const MmSwipeable({
@@ -236,7 +238,10 @@ class _MmSwipeableState extends State<MmSwipeable>
     final direction = predicted.sign;
     final confirm = widget.confirmSwipe();
     if (!mounted) return;
-    if (confirm == true) return _flyOut(direction, velocity);
+    if (confirm == true) {
+      if (widget.enableHaptics) HapticFeedback.lightImpact();
+      return _flyOut(direction, velocity);
+    }
     _springBack(velocity);
     if (confirm == null) return;
     if (direction > 0) {
